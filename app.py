@@ -176,10 +176,47 @@ def translate_feature_to_human(feature_name):
         cleaned_name = feature_name.replace('remainder__', '').replace('cat__', '')
         cleaned_name = cleaned_name.replace('_', ' ').title()
         return cleaned_name
-
+        
+def parse_feature_condition(feature_description):
+    """Parse LIME feature condition and convert to human-readable format"""
+    
+    # Handle different LIME output formats
+    if ' <= ' in feature_description:
+        parts = feature_description.split(' <= ')
+        feature_name = parts[0].strip()
+        value = parts[1].strip()
+        return feature_name, f"is {value} or below"
+    
+    elif ' > ' in feature_description:
+        parts = feature_description.split(' > ')
+        feature_name = parts[0].strip()
+        value = parts[1].strip()
+        return feature_name, f"is above {value}"
+    
+    elif ' < ' in feature_description:
+        parts = feature_description.split(' < ')
+        feature_name = parts[0].strip()
+        value = parts[1].strip()
+        return feature_name, f"is below {value}"
+    
+    elif ' >= ' in feature_description:
+        parts = feature_description.split(' >= ')
+        feature_name = parts[0].strip()
+        value = parts[1].strip()
+        return feature_name, f"is {value} or above"
+    
+    elif ' = ' in feature_description:
+        parts = feature_description.split(' = ')
+        feature_name = parts[0].strip()
+        value = parts[1].strip()
+        return feature_name, f"equals {value}"
+    
+    else:
+        # Fallback for other formats
+        return feature_description.strip(), "meets certain conditions"
 def format_contribution_explanation(feature_name, weight, is_risk_factor=True):
     """Create human-readable explanation for each feature contribution"""
-    
+    feature_name, condition = parse_feature_condition(feature_description)
     human_name = translate_feature_to_human(feature_name)
     abs_weight = abs(weight)
     
@@ -512,6 +549,7 @@ def main():
 if __name__ == "__main__":
 
     main()
+
 
 
 
