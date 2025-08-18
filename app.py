@@ -80,7 +80,7 @@ def predict_with_pipeline(pipeline, input_data):
     probabilities = pipeline.predict_proba(input_df)[0]
     return prediction, probabilities
 
-def create_lime_explanation_simple(explainer, pipeline, input_data, num_features=10):
+def create_lime_explanation_simple(explainer, pipeline, input_data, num_features=15):
     """Generate LIME explanation using preprocessed approach"""
     try:
         # Transform input data through preprocessing pipeline
@@ -441,7 +441,7 @@ def main():
                                 st.markdown("*These Factors make the building more vulnerable:*")
                                 for i, (feature_desc, weight) in enumerate(risk_factors[:5]):
                                     explanation_text = format_contribution_explanation(feature_desc, weight, is_risk_factor=True)
-                                    st.markdown(f"  {i+1}. **{feature}**: +{weight:.3f}")
+                                    st.markdown(f"  {i+1}. {explanation_text}")
                             
                             # Negative contributors (decrease collapse risk)
                             safety_factors = [(f, w) for f, w in explanation_list if w < 0]
@@ -452,7 +452,7 @@ def main():
                                 st.markdown("*These factors make the building safer:*")
                                 for i, (feature_desc, weight) in enumerate(safety_factors[:5]):
                                     explanation_text = format_contribution_explanation(feature, weight, is_risk_factor=False)
-                                    st.write(f"  {i+1}. **{feature}**: {weight:.3f}")
+                                    st.markdown(f"  {i+1}. {explanation_text}")
                                     
                             # Add summary interpretation
                             st.markdown("---")
@@ -550,6 +550,7 @@ def main():
 if __name__ == "__main__":
 
     main()
+
 
 
 
