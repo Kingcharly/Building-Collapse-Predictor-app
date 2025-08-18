@@ -215,7 +215,7 @@ def parse_feature_condition(feature_string):
         # Fallback for other formats
         return feature_description.strip(), "meets certain conditions"
         
-def format_contribution_explanation(feature_name, weight, is_risk_factor=True):
+def format_contribution_explanation(feature_desc, weight, is_risk_factor=True):
     """Create human-readable explanation for each feature contribution"""
     feature_name, condition = parse_feature_condition(feature_desc)
     human_name = translate_feature_to_human(feature_name)
@@ -433,18 +433,18 @@ def main():
                             st.subheader("📈 Detailed Safety Analysis")
                             
                             # Positive contributors (increase collapse risk)
-                            risk_factors = [(feature_desc, weight) for feature_desc, weight in explanation_list if weight > 0]
+                            risk_factors = [(f, w) for f, w in explanation_list if w > 0]
                             risk_factors.sort(key=lambda x: x[1], reverse=True)
                             
                             if risk_factors:
                                 st.markdown("**🔴 Factors Increasing Collapse Risk:**")
                                 st.markdown("*These Factors make the building more vulnerable:*")
                                 for i, (feature_desc, weight) in enumerate(risk_factors[:5]):
-                                    explanation_text = format_contribution_explanation(feature, weight, is_risk_factor=True)
+                                    explanation_text = format_contribution_explanation(feature_desc, weight, is_risk_factor=True)
                                     st.markdown(f"  {i+1}. **{feature}**: +{weight:.3f}")
                             
                             # Negative contributors (decrease collapse risk)
-                            safety_factors = [(feature_desc, weight) for feature_desc, weight in explanation_list if weight < 0]
+                            safety_factors = [(f, w) for f, w in explanation_list if w < 0]
                             safety_factors.sort(key=lambda x: x[1])
                             
                             if safety_factors:
@@ -458,8 +458,8 @@ def main():
                             st.markdown("---")
                             st.subheader("💡 Summary")
                 
-                            total_risk = sum([weight for feature_desc, weight in risk_factors])
-                            total_safety = abs(sum([weight for feature_desc, weight in safety_factors]))
+                            total_risk = sum([w for feature_desc, w in risk_factors])
+                            total_safety = abs(sum([w for feature_desc, w in safety_factors]))
                 
                             if total_risk > total_safety:
                                 st.warning(f"⚠️ **Overall Assessment**: Risk factors (impact: +{total_risk:.3f}) outweigh safety factors (impact: -{total_safety:.3f}). Consider structural improvements.")
@@ -550,6 +550,8 @@ def main():
 if __name__ == "__main__":
 
     main()
+
+
 
 
 
