@@ -247,7 +247,9 @@ def plot_lime_explanation(explanation):
         xaxis=dict(zeroline=True, zerolinecolor='black', zerolinewidth=2, title_font=dict(size=12),
         yaxis = dict(title_font = dict(size = 12)),
         font = dict(size = 11)
-        template="plotly_white")
+        template="plotly_white"
+        
+    )
     
     return fig
 
@@ -508,6 +510,7 @@ def main():
 if __name__ == "__main__":
 
     main()
+
 
 
 
