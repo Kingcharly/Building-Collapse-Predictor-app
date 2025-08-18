@@ -104,6 +104,111 @@ def create_lime_explanation_simple(explainer, pipeline, input_data, num_features
     except Exception as e:
         st.error(f"Error generating LIME explanation: {e}")
         return None
+def translate_feature_to_human(feature_name):
+    """Translate technical feature names to human-readable descriptions"""
+    
+    # Define mappings for technical terms to human language
+    feature_translations = {
+        # Structural strength features
+        'column_fck': 'Concrete Column Strength',
+        'beam_fck': 'Concrete Beam Strength', 
+        'slab_fck': 'Concrete Slab Strength',
+        'bearing_capacity': 'Soil Foundation Strength',
+        
+        # Steel reinforcement features
+        'Y6_fyk': '6mm Steel Bar Strength',
+        'Y8_fyk': '8mm Steel Bar Strength',
+        'Y10_fyk': '10mm Steel Bar Strength',
+        'Y12_fyk': '12mm Steel Bar Strength',
+        'Y16_fyk': '16mm Steel Bar Strength',
+        'Y20_fyk': '20mm Steel Bar Strength',
+        'Y25_fyk': '25mm Steel Bar Strength',
+        
+        # Building characteristics
+        'floor': 'Number of Building Floors',
+        'collapse_risk_score': 'Overall Risk Assessment Score',
+        
+        # Categorical features (after one-hot encoding)
+        'cat__location_Kwara': 'Building Located in Kwara State',
+        'cat__location_Lagos': 'Building Located in Lagos State',
+        'cat__location_Ogun': 'Building Located in Ogun State',
+        'cat__location_Ondo': 'Building Located in Ondo State',
+        'cat__location_Osun': 'Building Located in Osun State',
+        'cat__location_Oyo': 'Building Located in Oyo State',
+        
+        'cat__building_type_Duplex': 'Duplex Building Type',
+        'cat__building_type_Flat': 'Apartment/Flat Building Type',
+        'cat__building_type_Storey building': 'Multi-Story Building Type',
+        
+        'cat__foundation_type_Pile': 'Deep Pile Foundation',
+        'cat__foundation_type_Raft': 'Raft Foundation System',
+        'cat__foundation_type_Strip': 'Strip Foundation System',
+        
+        'cat__supervision_Good': 'Good Construction Supervision',
+        'cat__supervision_Poor': 'Poor Construction Supervision',
+        'cat__supervision_Unknown': 'Unknown Construction Supervision',
+        
+        # Remainder features (numeric features that come after categorical encoding)
+        'remainder__floor': 'Number of Building Floors',
+        'remainder__collapse_risk_score': 'Overall Risk Assessment Score',
+        'remainder__column_fck': 'Concrete Column Strength',
+        'remainder__beam_fck': 'Concrete Beam Strength',
+        'remainder__slab_fck': 'Concrete Slab Strength',
+        'remainder__Y6_fyk': '6mm Steel Bar Strength',
+        'remainder__Y8_fyk': '8mm Steel Bar Strength',
+        'remainder__Y10_fyk': '10mm Steel Bar Strength',
+        'remainder__Y12_fyk': '12mm Steel Bar Strength',
+        'remainder__Y16_fyk': '16mm Steel Bar Strength',
+        'remainder__Y20_fyk': '20mm Steel Bar Strength',
+        'remainder__Y25_fyk': '25mm Steel Bar Strength',
+        'remainder__bearing_capacity': 'Soil Foundation Strength'
+    }
+    
+    # Return translated name or clean up the original if not found
+    if feature_name in feature_translations:
+        return feature_translations[feature_name]
+    else:
+        # Clean up feature names that might have prefixes
+        cleaned_name = feature_name.replace('remainder__', '').replace('cat__', '')
+        cleaned_name = cleaned_name.replace('_', ' ').title()
+        return cleaned_name
+
+def format_contribution_explanation(feature_name, weight, is_risk_factor=True):
+    """Create human-readable explanation for each feature contribution"""
+    
+    human_name = translate_feature_to_human(feature_name)
+    abs_weight = abs(weight)
+    
+    # Determine impact level
+    if abs_weight > 0.1:
+        impact_level = "Strong"
+    elif abs_weight > 0.05:
+        impact_level = "Moderate"
+    else:
+        impact_level = "Weak"
+    
+    if is_risk_factor:
+        if "strength" in human_name.lower():
+            explanation = f"**{human_name}** is below optimal levels, significantly increasing collapse risk"
+        elif "supervision" in human_name.lower() and "poor" in human_name.lower():
+            explanation = f"**{human_name}** increases vulnerability to structural failures"
+        elif "floor" in human_name.lower():
+            explanation = f"**{human_name}** adds structural load and complexity"
+        elif "risk" in human_name.lower():
+            explanation = f"**{human_name}** indicates elevated danger level"
+        else:
+            explanation = f"**{human_name}** contributes to structural vulnerability"
+    else:
+        if "strength" in human_name.lower():
+            explanation = f"**{human_name}** meets safety standards, reducing collapse risk"
+        elif "supervision" in human_name.lower() and "good" in human_name.lower():
+            explanation = f"**{human_name}** ensures quality construction practices"
+        elif "foundation" in human_name.lower():
+            explanation = f"**{human_name}** provides stable structural support"
+        else:
+            explanation = f"**{human_name}** contributes to structural safety"
+    
+    return f"{explanation} ({impact_level} influence: {weight:+.3f})"
 
 def plot_lime_explanation(explanation):
     """Create interactive LIME explanation plot"""
@@ -113,26 +218,31 @@ def plot_lime_explanation(explanation):
     explanation_list = explanation.as_list()
     features = [item[0] for item in explanation_list]
     weights = [item[1] for item in explanation_list]
-    
+
+    # Translate to hyman-readable names
+    human_features = [translate_feature_to_human(feature) for feature in technical_features]
     # Create color mapping
     colors = ['rgba(255, 99, 71, 0.8)' if w < 0 else 'rgba(60, 179, 113, 0.8)' for w in weights]
     
     fig = go.Figure(go.Bar(
         x=weights,
-        y=features,
+        y=human_features,
         orientation='h',
         marker_color=colors,
         text=[f'{w:.3f}' for w in weights],
-        textposition='outside'
+        textposition='outside',
+        hovertemplate='<b>%{y}</b><br>Impact: %{x:.3f}<br><extra></extra>'
     ))
     
     fig.update_layout(
-        title="LIME Feature Contributions",
-        xaxis_title="Contribution to Collapse Prediction",
-        yaxis_title="Features",
+        title="🏗️ LIME Building Safety Factor Analysis",
+        xaxis_title="Impact on Collapse Risk (Negative = Safer, Positive = Riskier)",
+        yaxis_title="Building Safety Factors",
         height=600,
         showlegend=False,
-        xaxis=dict(zeroline=True, zerolinecolor='black', zerolinewidth=1),
+        xaxis=dict(zeroline=True, zerolinecolor='black', zerolinewidth=2, title_font=dict(size=12),
+        yaxis = dict(title_font = dict(size = 12)),
+        font = dict(size = 11)
         template="plotly_white"
     )
     
@@ -258,9 +368,10 @@ def main():
             
             with col2:
                 # LIME Explanation
-                st.subheader("🔍 Decision Explanation (LIME)")
+                st.subheader("🔍 AI Decision Explanation")
+                st.markdown("*Understanding why the AI made this prediction*")
                 
-                with st.spinner("Generating explanation..."):
+                with st.spinner("Analyzing building factors..."):
                     explanation = create_lime_explanation_simple(explainer, pipeline, input_data)
                     
                     if explanation is not None:
@@ -272,7 +383,7 @@ def main():
                             # Feature contribution analysis
                             explanation_list = explanation.as_list()
                             
-                            st.subheader("📈 Key Contributing Factors")
+                            st.subheader("📈 Detailed Safety Analysis")
                             
                             # Positive contributors (increase collapse risk)
                             risk_factors = [(f, w) for f, w in explanation_list if w > 0]
@@ -280,8 +391,10 @@ def main():
                             
                             if risk_factors:
                                 st.markdown("**🔴 Factors Increasing Collapse Risk:**")
+                                st.markdown("*These Factors make the building more vulnerable:*")
                                 for i, (feature, weight) in enumerate(risk_factors[:5]):
-                                    st.write(f"  {i+1}. **{feature}**: +{weight:.3f}")
+                                    explanation_text = format_contribution_explanation(feature, weight, is_risk_factor=True)
+                                    st.markdown(f"  {i+1}. **{feature}**: +{weight:.3f}")
                             
                             # Negative contributors (decrease collapse risk)
                             safety_factors = [(f, w) for f, w in explanation_list if w < 0]
@@ -289,9 +402,26 @@ def main():
                             
                             if safety_factors:
                                 st.markdown("**🟢 Factors Reducing Collapse Risk:**")
+                                st.markdown("*These factors make the building safer:*")
                                 for i, (feature, weight) in enumerate(safety_factors[:5]):
+                                    explanation_text = format_contribution_explanation(feature, weight, is_risk_factor=False)
                                     st.write(f"  {i+1}. **{feature}**: {weight:.3f}")
+                                    
+                            # Add summary interpretation
+                           st.markdown("---")
+                           st.subheader("💡 Summary")
                 
+                           total_risk = sum([w for f, w in risk_factors])
+                           total_safety = abs(sum([w for f, w in safety_factors]))
+                           if total_risk > total_safety:
+                               st.warning(f"⚠️ **Overall Assessment**: Risk factors (impact: +{total_risk:.3f}) outweigh safety factors (impact: -{total_safety:.3f}). Consider structural improvements.")
+                           else:
+                               st.success(f"✅ **Overall Assessment**: Safety factors (impact: -{total_safety:.3f}) outweigh risk factors (impact: +{total_risk:.3f}). Building shows good structural integrity.")
+        
+                     
+                
+
+               
                     else:
                         st.error("Could not generate LIME explanation")
                         
@@ -375,6 +505,7 @@ def main():
 if __name__ == "__main__":
 
     main()
+
 
 
 
