@@ -417,19 +417,17 @@ def main():
                                     st.write(f"  {i+1}. **{feature}**: {weight:.3f}")
                                     
                             # Add summary interpretation
-                           st.markdown("---")
-                           st.subheader("💡 Summary")
+                            st.markdown("---")
+                            st.subheader("💡 Summary")
                 
-                           total_risk = sum([w for f, w in risk_factors])
-                           total_safety = abs(sum([w for f, w in safety_factors]))
-                           if total_risk > total_safety:
-                               st.warning(f"⚠️ **Overall Assessment**: Risk factors (impact: +{total_risk:.3f}) outweigh safety factors (impact: -{total_safety:.3f}). Consider structural improvements.")
-                           else:
-                               st.success(f"✅ **Overall Assessment**: Safety factors (impact: -{total_safety:.3f}) outweigh risk factors (impact: +{total_risk:.3f}). Building shows good structural integrity.")
-        
-                     
+                            total_risk = sum([w for f, w in risk_factors])
+                            total_safety = abs(sum([w for f, w in safety_factors]))
                 
-
+                            if total_risk > total_safety:
+                            st.warning(f"⚠️ **Overall Assessment**: Risk factors (impact: +{total_risk:.3f}) outweigh safety factors (impact: -{total_safety:.3f}). Consider structural improvements.")
+                            else:
+                            st.success(f"✅ **Overall Assessment**: Safety factors (impact: -{total_safety:.3f}) outweigh risk factors (impact: +{total_risk:.3f}). Building shows good structural integrity.")
+    
                
                     else:
                         st.error("Could not generate LIME explanation")
@@ -514,6 +512,7 @@ def main():
 if __name__ == "__main__":
 
     main()
+
 
 
 
