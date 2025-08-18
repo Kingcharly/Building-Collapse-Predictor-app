@@ -239,16 +239,20 @@ def plot_lime_explanation(explanation):
     ))
     
     fig.update_layout(
-        title="🏗️ LIME Building Safety Factor Analysis",
+        title="🏗️ Building Safety Factor Analysis",
         xaxis_title="Impact on Collapse Risk (Negative = Safer, Positive = Riskier)",
         yaxis_title="Building Safety Factors",
         height=600,
         showlegend=False,
-        xaxis=dict(zeroline=True, zerolinecolor='black', zerolinewidth=2, title_font=dict(size=12),
-        yaxis = dict(title_font = dict(size = 12)),
-        font = dict(size = 11)
-        template="plotly_white"
-        
+        xaxis=dict(
+            zeroline=True, 
+            zerolinecolor='black', 
+            zerolinewidth=2,
+            title_font=dict(size=12)
+        ),
+        yaxis=dict(title_font=dict(size=12)),
+        template="plotly_white",
+        font=dict(size=11)
     )
     
     return fig
@@ -510,6 +514,7 @@ def main():
 if __name__ == "__main__":
 
     main()
+
 
 
 
