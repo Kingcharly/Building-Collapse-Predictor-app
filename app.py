@@ -224,7 +224,7 @@ def plot_lime_explanation(explanation):
     weights = [item[1] for item in explanation_list]
 
     # Translate to hyman-readable names
-    human_features = [translate_feature_to_human(feature) for feature in technical_features]
+    human_features = [translate_feature_to_human(feature) for feature in features]
     # Create color mapping
     colors = ['rgba(255, 99, 71, 0.8)' if w < 0 else 'rgba(60, 179, 113, 0.8)' for w in weights]
     
@@ -512,6 +512,7 @@ def main():
 if __name__ == "__main__":
 
     main()
+
 
 
 
