@@ -177,7 +177,7 @@ def translate_feature_to_human(feature_name):
         cleaned_name = cleaned_name.replace('_', ' ').title()
         return cleaned_name
         
-def parse_feature_condition(feature_description):
+def parse_feature_condition(feature_string):
     """Parse LIME feature condition and convert to human-readable format"""
     
     # Handle different LIME output formats
@@ -433,7 +433,7 @@ def main():
                             st.subheader("📈 Detailed Safety Analysis")
                             
                             # Positive contributors (increase collapse risk)
-                            risk_factors = [(f, w) for f, w in explanation_list if w > 0]
+                            risk_factors = [(feature_desc, weight) for feature_desc, weight in explanation_list if w > 0]
                             risk_factors.sort(key=lambda x: x[1], reverse=True)
                             
                             if risk_factors:
@@ -444,7 +444,7 @@ def main():
                                     st.markdown(f"  {i+1}. **{feature}**: +{weight:.3f}")
                             
                             # Negative contributors (decrease collapse risk)
-                            safety_factors = [(f, w) for f, w in explanation_list if w < 0]
+                            safety_factors = [(feature_desc, weight) for feature_desc, weight in explanation_list if w < 0]
                             safety_factors.sort(key=lambda x: x[1])
                             
                             if safety_factors:
@@ -550,6 +550,7 @@ def main():
 if __name__ == "__main__":
 
     main()
+
 
 
 
