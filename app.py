@@ -8,7 +8,9 @@ Created on Mon Aug 18 14:16:49 2025
 import streamlit as st
 import pandas as pd
 import numpy as np
-import plotly.graph_objects as go  # Remove plotly.express import
+import plotly.express as px
+import plotly.graph_objects as go
+from plotly.subplots import make_subplots
 import json
 import os
 from joblib import load
@@ -363,3 +365,4 @@ def main():
 if __name__ == "__main__":
 
     main()
+
