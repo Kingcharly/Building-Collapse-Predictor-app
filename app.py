@@ -451,7 +451,7 @@ def main():
                                 st.markdown("**🟢 Factors Reducing Collapse Risk:**")
                                 st.markdown("*These factors make the building safer:*")
                                 for i, (feature_desc, weight) in enumerate(safety_factors[:5]):
-                                    explanation_text = format_contribution_explanation(feature, weight, is_risk_factor=False)
+                                    explanation_text = format_contribution_explanation(feature_desc, weight, is_risk_factor=False)
                                     st.markdown(f"  {i+1}. {explanation_text}")
                                     
                             # Add summary interpretation
@@ -550,6 +550,7 @@ def main():
 if __name__ == "__main__":
 
     main()
+
 
 
 
