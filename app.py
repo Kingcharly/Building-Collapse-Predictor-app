@@ -214,9 +214,10 @@ def parse_feature_condition(feature_description):
     else:
         # Fallback for other formats
         return feature_description.strip(), "meets certain conditions"
+        
 def format_contribution_explanation(feature_name, weight, is_risk_factor=True):
     """Create human-readable explanation for each feature contribution"""
-    feature_name, condition = parse_feature_condition(feature_description)
+    feature_name, condition = parse_feature_condition(feature_desc)
     human_name = translate_feature_to_human(feature_name)
     abs_weight = abs(weight)
     
@@ -438,7 +439,7 @@ def main():
                             if risk_factors:
                                 st.markdown("**🔴 Factors Increasing Collapse Risk:**")
                                 st.markdown("*These Factors make the building more vulnerable:*")
-                                for i, (feature, weight) in enumerate(risk_factors[:5]):
+                                for i, (feature_desc, weight) in enumerate(risk_factors[:5]):
                                     explanation_text = format_contribution_explanation(feature, weight, is_risk_factor=True)
                                     st.markdown(f"  {i+1}. **{feature}**: +{weight:.3f}")
                             
@@ -449,7 +450,7 @@ def main():
                             if safety_factors:
                                 st.markdown("**🟢 Factors Reducing Collapse Risk:**")
                                 st.markdown("*These factors make the building safer:*")
-                                for i, (feature, weight) in enumerate(safety_factors[:5]):
+                                for i, (feature_desc, weight) in enumerate(safety_factors[:5]):
                                     explanation_text = format_contribution_explanation(feature, weight, is_risk_factor=False)
                                     st.write(f"  {i+1}. **{feature}**: {weight:.3f}")
                                     
@@ -549,6 +550,7 @@ def main():
 if __name__ == "__main__":
 
     main()
+
 
 
 
