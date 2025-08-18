@@ -424,9 +424,9 @@ def main():
                             total_safety = abs(sum([w for f, w in safety_factors]))
                 
                             if total_risk > total_safety:
-                            st.warning(f"⚠️ **Overall Assessment**: Risk factors (impact: +{total_risk:.3f}) outweigh safety factors (impact: -{total_safety:.3f}). Consider structural improvements.")
+                                st.warning(f"⚠️ **Overall Assessment**: Risk factors (impact: +{total_risk:.3f}) outweigh safety factors (impact: -{total_safety:.3f}). Consider structural improvements.")
                             else:
-                            st.success(f"✅ **Overall Assessment**: Safety factors (impact: -{total_safety:.3f}) outweigh risk factors (impact: +{total_risk:.3f}). Building shows good structural integrity.")
+                                st.success(f"✅ **Overall Assessment**: Safety factors (impact: -{total_safety:.3f}) outweigh risk factors (impact: +{total_risk:.3f}). Building shows good structural integrity.")
     
                
                     else:
@@ -512,6 +512,7 @@ def main():
 if __name__ == "__main__":
 
     main()
+
 
 
 
