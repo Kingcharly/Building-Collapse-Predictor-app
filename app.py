@@ -126,26 +126,30 @@ def translate_feature_to_human(feature_name):
         
         # Building characteristics
         'floor': 'Number of Building Floors',
-        'collapse_risk_score': 'Overall Risk Assessment Score',
+        'collapse_risk_score': 'Weighted Risk Factor based on Location',
         
         # Categorical features (after one-hot encoding)
         'cat__location_Kwara': 'Building Located in Kwara State',
         'cat__location_Lagos': 'Building Located in Lagos State',
-        'cat__location_Ogun': 'Building Located in Ogun State',
-        'cat__location_Ondo': 'Building Located in Ondo State',
-        'cat__location_Osun': 'Building Located in Osun State',
-        'cat__location_Oyo': 'Building Located in Oyo State',
+        'cat__location_Abuja': 'Building Located in Abuja State',
+        'cat__location_Benue': 'Building Located in Benue State',
+        'cat__location_Akwa Ibom': 'Building Located in Akwa Ibom State',
+        'cat__location_Plateau': 'Building Located in Plateau State',
         
-        'cat__building_type_Duplex': 'Duplex Building Type',
-        'cat__building_type_Flat': 'Apartment/Flat Building Type',
-        'cat__building_type_Storey building': 'Multi-Story Building Type',
+        'cat__building_type_Residential': 'Residential Building Type',
+        'cat__building_type_Commercial': 'Commercial Building Type',
+        'cat__building_type_Church': 'Church Building Type',
+        'cat__building_type_School': 'School Building Type',
         
-        'cat__foundation_type_Pile': 'Deep Pile Foundation',
+        'cat_foundation_type_Pile': 'Pile Foundation System',
+        'cat_foundation_type_Strip': 'Strip Foundation System',
+        'cat_foundation_type_Wide Strip': 'Wide Foundation System',
+        'cat_foundation_type_Pad': 'Pad Foundation System',
         'cat__foundation_type_Raft': 'Raft Foundation System',
         'cat__foundation_type_Strip': 'Strip Foundation System',
         
-        'cat__supervision_Good': 'Good Construction Supervision',
-        'cat__supervision_Poor': 'Poor Construction Supervision',
+        'cat__supervision_Yes': 'Good Construction Supervision',
+        'cat__supervision_No': 'Poor Construction Supervision',
         'cat__supervision_Unknown': 'Unknown Construction Supervision',
         
         # Remainder features (numeric features that come after categorical encoding)
@@ -243,8 +247,7 @@ def plot_lime_explanation(explanation):
         xaxis=dict(zeroline=True, zerolinecolor='black', zerolinewidth=2, title_font=dict(size=12),
         yaxis = dict(title_font = dict(size = 12)),
         font = dict(size = 11)
-        template="plotly_white"
-    )
+        template="plotly_white")
     
     return fig
 
@@ -505,6 +508,7 @@ def main():
 if __name__ == "__main__":
 
     main()
+
 
 
 
