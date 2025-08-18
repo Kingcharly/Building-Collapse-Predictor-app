@@ -354,6 +354,11 @@ def main():
     
     # Footer
     st.markdown("---")
+    st.markdown("""
+    <div style='text-align: center'>
+    <p>🏗️ Building Collapse Prediction System | Developed by Charles Eze Powered by Machine Learning & LIME</p>
+    </div>
+    """, unsafe_allow_html=True)
     st.markdown(
     """
     <div style="font-size:13px; color:gray; margin-top:30px;">
@@ -364,17 +369,13 @@ def main():
     """,
     unsafe_allow_html=True
 )
-    st.markdown("""
-    <div style='text-align: center'>
-    <p>🏗️ Building Collapse Prediction System | Developed by Charles Eze Powered by Machine Learning & LIME</p>
-    </div>
-    """, unsafe_allow_html=True)
     
 
 
 if __name__ == "__main__":
 
     main()
+
 
 
 
