@@ -181,39 +181,39 @@ def parse_feature_condition(feature_string):
     """Parse LIME feature condition and convert to human-readable format"""
     
     # Handle different LIME output formats
-    if ' <= ' in feature_description:
-        parts = feature_description.split(' <= ')
+    if ' <= ' in feature_string:
+        parts = feature_string.split(' <= ')
         feature_name = parts[0].strip()
         value = parts[1].strip()
         return feature_name, f"is {value} or below"
     
-    elif ' > ' in feature_description:
-        parts = feature_description.split(' > ')
+    elif ' > ' in feature_string:
+        parts = feature_string.split(' > ')
         feature_name = parts[0].strip()
         value = parts[1].strip()
         return feature_name, f"is above {value}"
     
-    elif ' < ' in feature_description:
-        parts = feature_description.split(' < ')
+    elif ' < ' in feature_string:
+        parts = feature_string.split(' < ')
         feature_name = parts[0].strip()
         value = parts[1].strip()
         return feature_name, f"is below {value}"
     
-    elif ' >= ' in feature_description:
-        parts = feature_description.split(' >= ')
+    elif ' >= ' in feature_string:
+        parts = feature_string.split(' >= ')
         feature_name = parts[0].strip()
         value = parts[1].strip()
         return feature_name, f"is {value} or above"
     
-    elif ' = ' in feature_description:
-        parts = feature_description.split(' = ')
+    elif ' = ' in feature_string:
+        parts = feature_string.split(' = ')
         feature_name = parts[0].strip()
         value = parts[1].strip()
         return feature_name, f"equals {value}"
     
     else:
         # Fallback for other formats
-        return feature_description.strip(), "meets certain conditions"
+        return feature_string.strip(), "meets certain conditions"
         
 def format_contribution_explanation(feature_desc, weight, is_risk_factor=True):
     """Create human-readable explanation for each feature contribution"""
@@ -550,6 +550,7 @@ def main():
 if __name__ == "__main__":
 
     main()
+
 
 
 
