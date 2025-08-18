@@ -172,19 +172,19 @@ def main():
     with col1:
         input_data['floor'] = st.number_input("Number of Floors", min_value=1, max_value=20, value=3)
         input_data['collapse_risk_score'] = st.number_input("Collapse Risk Score", min_value=0, max_value=3)
-        input_data['column_fck'] = st.number_input("Column Compressive Strength (MPa)", 0.0, 40.0, 20.0, 1.0)
-        input_data['beam_fck'] = st.number_input("Beam Compressive Strength (MPa)", 0.0, 40.0, 20.0, 1.0)
-        input_data['slab_fck'] = st.number_input("Slab Compressive Strength (MPa)", 0.0, 40.0, 20.0, 1.0)
-        input_data['bearing_capacity'] = st.number_input("Soil Bearing Capacity (kN/m²)", 50.0, 500.0, 150.0, 10.0)
+        input_data['column_fck'] = st.number_input("Compressive Strength of Column Element (MPa)", 0.0, 40.0, 20.0, 1.0)
+        input_data['beam_fck'] = st.number_input("Compressive Strength of Beam Element (MPa)", 0.0, 40.0, 20.0, 1.0)
+        input_data['slab_fck'] = st.number_input("Compressive Strength of Slab Element (MPa)", 0.0, 40.0, 20.0, 1.0)
+        input_data['bearing_capacity'] = st.number_input("Bearing Capacity of Soil (kN/m²)", 50.0, 500.0, 150.0, 10.0)
     
     with col2:
-        input_data['Y6_fyk'] = st.number_input("6mm Bar Yield Strength (MPa)", 0.0, 600.0, 0.0, 5.0)
-        input_data['Y8_fyk'] = st.number_input("8mm Bar Yield Strength (MPa)", 0.0, 600.0, 0.0, 5.0)
-        input_data['Y10_fyk'] = st.number_input("10mm Bar Yield Strength (MPa)", 0.0, 600.0, 250.0, 5.0)
-        input_data['Y12_fyk'] = st.number_input("12mm Bar Yield Strength (MPa)", 0.0, 600.0, 410.0, 5.0)
-        input_data['Y16_fyk'] = st.number_input("16mm Bar Yield Strength (MPa)", 0.0, 600.0, 410.0, 5.0)
-        input_data['Y20_fyk'] = st.number_input("20mm Bar Yield Strength (MPa)", 0.0, 600.0, 0.0, 5.0)
-        input_data['Y25_fyk'] = st.number_input("25mm Bar Yield Strength (MPa)", 0.0, 600.0, 0.0, 5.0)
+        input_data['Y6_fyk'] = st.number_input("Yield Strength of 6mm bar (MPa)", 0.0, 600.0, 0.0, 5.0)
+        input_data['Y8_fyk'] = st.number_input("Yield Strength of 8mm bar (MPa)", 0.0, 600.0, 0.0, 5.0)
+        input_data['Y10_fyk'] = st.number_input("Yield Strength of 10mm bar (MPa)", 0.0, 600.0, 250.0, 5.0)
+        input_data['Y12_fyk'] = st.number_input("Yield Strength of 12mm bar (MPa)", 0.0, 600.0, 410.0, 5.0)
+        input_data['Y16_fyk'] = st.number_input("Yield Strength of 16mm bar (MPa)", 0.0, 600.0, 410.0, 5.0)
+        input_data['Y20_fyk'] = st.number_input("Yield Strength of 20mm bar (MPa)", 0.0, 600.0, 0.0, 5.0)
+        input_data['Y25_fyk'] = st.number_input("Yield Strength of 25mm bar (MPa)", 0.0, 600.0, 0.0, 5.0)
     
     # Categorical features
     st.sidebar.subheader("🏢 Categorical Features")
@@ -354,6 +354,16 @@ def main():
     
     # Footer
     st.markdown("---")
+    st.markdown(
+    """
+    <div style="font-size:13px; color:gray; margin-top:30px;">
+    ⚠️ <b>Disclaimer:</b> This prediction tool is for research and educational purposes only. 
+    The results are not a substitute for professional engineering judgment or compliance with 
+    building codes. Always consult qualified professionals before making construction or safety decisions.
+    </div>
+    """,
+    unsafe_allow_html=True
+)
     st.markdown("""
     <div style='text-align: center'>
     <p>🏗️ Building Collapse Prediction System | Developed by Charles Eze Powered by Machine Learning & LIME</p>
@@ -365,5 +375,6 @@ def main():
 if __name__ == "__main__":
 
     main()
+
 
 
