@@ -335,13 +335,12 @@ def main():
         input_data['bearing_capacity'] = st.number_input("Bearing Capacity of Soil (kN/m²)", 50.0, 500.0, 150.0, 10.0)
     
     with col2:
-        input_data['Y6_fyk'] = st.number_input("Yield Strength of 6mm bar (MPa)", 0.0, 600.0, 0.0, 5.0)
-        input_data['Y8_fyk'] = st.number_input("Yield Strength of 8mm bar (MPa)", 0.0, 600.0, 0.0, 5.0)
-        input_data['Y10_fyk'] = st.number_input("Yield Strength of 10mm bar (MPa)", 0.0, 600.0, 250.0, 5.0)
-        input_data['Y12_fyk'] = st.number_input("Yield Strength of 12mm bar (MPa)", 0.0, 600.0, 410.0, 5.0)
-        input_data['Y16_fyk'] = st.number_input("Yield Strength of 16mm bar (MPa)", 0.0, 600.0, 410.0, 5.0)
-        input_data['Y20_fyk'] = st.number_input("Yield Strength of 20mm bar (MPa)", 0.0, 600.0, 0.0, 5.0)
-        input_data['Y25_fyk'] = st.number_input("Yield Strength of 25mm bar (MPa)", 0.0, 600.0, 0.0, 5.0)
+        input_data['Y8_fyk'] = st.number_input("Yield Strength of 8mm bar (MPa)", 0.0, 600.0, 0.0, 50.0)
+        input_data['Y10_fyk'] = st.number_input("Yield Strength of 10mm bar (MPa)", 0.0, 600.0, 250.0, 50.0)
+        input_data['Y12_fyk'] = st.number_input("Yield Strength of 12mm bar (MPa)", 0.0, 600.0, 410.0, 50.0)
+        input_data['Y16_fyk'] = st.number_input("Yield Strength of 16mm bar (MPa)", 0.0, 600.0, 410.0, 50.0)
+        input_data['Y20_fyk'] = st.number_input("Yield Strength of 20mm bar (MPa)", 0.0, 600.0, 0.0, 50.0)
+        
     
     # Categorical features
     st.sidebar.subheader("🏢 Categorical Features")
@@ -550,6 +549,7 @@ def main():
 if __name__ == "__main__":
 
     main()
+
 
 
 
