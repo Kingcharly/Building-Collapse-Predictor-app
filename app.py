@@ -116,13 +116,12 @@ def translate_feature_to_human(feature_name):
         'bearing_capacity': 'Soil Foundation Strength',
         
         # Steel reinforcement features
-        'Y6_fyk': '6mm Steel Bar Strength',
         'Y8_fyk': '8mm Steel Bar Strength',
         'Y10_fyk': '10mm Steel Bar Strength',
         'Y12_fyk': '12mm Steel Bar Strength',
         'Y16_fyk': '16mm Steel Bar Strength',
         'Y20_fyk': '20mm Steel Bar Strength',
-        'Y25_fyk': '25mm Steel Bar Strength',
+        
         
         # Building characteristics
         'floor': 'Number of Building Floors',
@@ -439,6 +438,8 @@ def main():
                                 st.markdown("**🔴 Factors Increasing Collapse Risk:**")
                                 st.markdown("*These Factors make the building more vulnerable:*")
                                 for i, (feature_desc, weight) in enumerate(risk_factors[:5]):
+                                    if 'Y6_fyk' in feature_desc or 'Y25_fyk' in feature_desc:
+                                        continue
                                     explanation_text = format_contribution_explanation(feature_desc, weight, is_risk_factor=True)
                                     st.markdown(f"  {i+1}. {explanation_text}")
                             
@@ -450,6 +451,8 @@ def main():
                                 st.markdown("**🟢 Factors Reducing Collapse Risk:**")
                                 st.markdown("*These factors make the building safer:*")
                                 for i, (feature_desc, weight) in enumerate(safety_factors[:5]):
+                                    if 'Y6_fyk' in feature_desc or 'Y25_fyk' in feature_desc:
+                                        continue
                                     explanation_text = format_contribution_explanation(feature_desc, weight, is_risk_factor=False)
                                     st.markdown(f"  {i+1}. {explanation_text}")
                                     
@@ -549,6 +552,7 @@ def main():
 if __name__ == "__main__":
 
     main()
+
 
 
 
