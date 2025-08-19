@@ -503,7 +503,7 @@ def main():
                             else:
                                 st.success(f"✅ **Overall Assessment**: Safety factors (impact: -{total_safety:.3f}) outweigh risk factors (impact: +{total_risk:.3f}). Building shows good structural integrity.")
                                 if total_risk > 0:
-                                    st.info(f"💡 **Improvement Opportunity**: Consider addressing factors working against safety (impact: {total_risk:.3f}) for even better performance.)
+                                    st.info(f"💡 **Improvement Opportunity**: Consider addressing factors working against safety (impact: {total_risk:.3f}) for even better performance.")
     
                
                     else:
@@ -590,6 +590,7 @@ def main():
 if __name__ == "__main__":
 
     main()
+
 
 
 
