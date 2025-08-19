@@ -91,16 +91,23 @@ def create_lime_explanation_simple(explainer, pipeline, input_data, num_features
         def predict_fn(X):
             # X is already preprocessed, so we only need the classifier
             return pipeline.named_steps['classifier'].predict_proba(X)
+
+        # Get the actual prediction to determine which class to explain
+        prediction = pipeline.predict(input_df)[0]
+        probabilities = pipeline.predict_proba(input_df)[0]
+
+        # Determine which class to explain (the predicted class)
+        class_to_explain = prediction
         
         # Generate LIME explanation
         explanation = explainer.explain_instance(
             data_row=input_transformed[0],
             predict_fn=predict_fn,
             num_features=num_features,
-            top_labels=1
+            labels=[class_to_explain]
         )
         
-        return explanation
+        return explanation, prediction, probabilities
     except Exception as e:
         st.error(f"Error generating LIME explanation: {e}")
         return None
@@ -419,7 +426,8 @@ def main():
                 with st.spinner("Analyzing building factors..."):
                     explanation = create_lime_explanation_simple(explainer, pipeline, input_data)
                     
-                    if explanation is not None:
+                    if explanation_result[0] is not None:
+                        explanation, pred, probs = explanation_result
                         # Interactive LIME plot
                         fig_lime = plot_lime_explanation(explanation)
                         if fig_lime is not None:
@@ -429,26 +437,49 @@ def main():
                             explanation_list = explanation.as_list()
                             
                             st.subheader("📈 Detailed Safety Analysis")
+                            # Filter out Y6_fyk and Y25_fyk from explanations
+                            filtered_explanation = [(f, w) for f, w in explanation_list 
+                                   if 'Y6_fyk' not in f and 'Y25_fyk' not in f]
+
+                            # Determine if this is a collapse prediction or safe prediction
+                            is_collapse_prediction = pred == 1
+                            if is_collapse_prediction:
+                                # For collapse predictions, positive weights increase risk
+                                risk_factors = [(f, w) for f, w in filtered_explanation if w > 0]
+                                safety_factors = [(f, w) for f, w in filtered_explanation if w < 0]
+                
+                                risk_title = "🔴 Factors Increasing Collapse Risk:"
+                                safety_title = "🟢 Factors Reducing Collapse Risk:"
+                            else:
+                                # For safe predictions, negative weights support safety, positive weights work against safety
+                                safety_factors = [(f, w) for f, w in filtered_explanation if w < 0]
+                                risk_factors = [(f, w) for f, w in filtered_explanation if w > 0]
+                                
+                                risk_title = "🟡 Factors Working Against Safety:"
+                                safety_title = "🟢 Factors Supporting Building Safety:"
+
+                            # Sort factors
+                            risk_factors.sort(key=lambda x: abs(x[1]), reverse=True)
+                            safety_factors.sort(key=lambda x: abs(x[1]), reverse=True)
                             
-                            # Positive contributors (increase collapse risk)
-                            risk_factors = [(f, w) for f, w in explanation_list if w > 0]
-                            risk_factors.sort(key=lambda x: x[1], reverse=True)
-                            
+                            # Display safety factors (most important for low-risk predictions)
                             if risk_factors:
-                                st.markdown("**🔴 Factors Increasing Collapse Risk:**")
-                                st.markdown("*These Factors make the building more vulnerable:*")
+                                st.markdown(f"**{risk_title}"")
+                                if is_collapse_prediction:
+                                    st.markdown("*These Factors make the building more vulnerable:*")
+                                else:
+                                    st.markdown("*Theese factors could be improved for better safety:*")
+                                
                                 for i, (feature_desc, weight) in enumerate(risk_factors[:5]):
                                     if 'Y6_fyk' in feature_desc or 'Y25_fyk' in feature_desc:
                                         continue
                                     explanation_text = format_contribution_explanation(feature_desc, weight, is_risk_factor=True)
                                     st.markdown(f"  {i+1}. {explanation_text}")
                             
-                            # Negative contributors (decrease collapse risk)
-                            safety_factors = [(f, w) for f, w in explanation_list if w < 0]
-                            safety_factors.sort(key=lambda x: x[1])
-                            
+                          
+                            # Display safety factors (most important for low-risk predictions)
                             if safety_factors:
-                                st.markdown("**🟢 Factors Reducing Collapse Risk:**")
+                                st.markdown(f"**{safety_title}**")
                                 st.markdown("*These factors make the building safer:*")
                                 for i, (feature_desc, weight) in enumerate(safety_factors[:5]):
                                     if 'Y6_fyk' in feature_desc or 'Y25_fyk' in feature_desc:
@@ -462,15 +493,22 @@ def main():
                 
                             total_risk = sum([w for feature_desc, w in risk_factors])
                             total_safety = abs(sum([w for feature_desc, w in safety_factors]))
+
+                            if is_collapse_prediction:
                 
-                            if total_risk > total_safety:
-                                st.warning(f"⚠️ **Overall Assessment**: Risk factors (impact: +{total_risk:.3f}) outweigh safety factors (impact: -{total_safety:.3f}). Consider structural improvements.")
+                                if total_risk > total_safety:
+                                    st.warning(f"⚠️ **Overall Assessment**: Risk factors (impact: +{total_risk:.3f}) outweigh safety factors (impact: -{total_safety:.3f}). Consider structural improvements.")
+                                else:
+                                    st.info(f"⚖️ **Mixed Assessment**: While collapse is predicted, safety factors (impact: -{total_safety:.3f}) are significant. Review critical risk factors.")
                             else:
                                 st.success(f"✅ **Overall Assessment**: Safety factors (impact: -{total_safety:.3f}) outweigh risk factors (impact: +{total_risk:.3f}). Building shows good structural integrity.")
+                                if total_risk > 0:
+                                    st.info(f"💡 **Improvement Opportunity**: Consider addressing factors working against safety (impact: {total_risk:.3f}) for even better performance.)
     
                
                     else:
                         st.error("Could not generate LIME explanation")
+                        st.info("This may be due to model complexity or data preprocessing issues.")
                         
                     
                 
@@ -552,6 +590,7 @@ def main():
 if __name__ == "__main__":
 
     main()
+
 
 
 
