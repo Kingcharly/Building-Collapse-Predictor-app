@@ -464,7 +464,7 @@ def main():
                             
                             # Display safety factors (most important for low-risk predictions)
                             if risk_factors:
-                                st.markdown(f"**{risk_title}"")
+                                st.markdown(f"**{risk_title}")
                                 if is_collapse_prediction:
                                     st.markdown("*These Factors make the building more vulnerable:*")
                                 else:
@@ -590,6 +590,7 @@ def main():
 if __name__ == "__main__":
 
     main()
+
 
 
 
