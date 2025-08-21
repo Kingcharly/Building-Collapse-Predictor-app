@@ -179,7 +179,21 @@ def translate_feature_to_human(feature_name):
         'remainder__Y25_fyk': '25mm Steel Bar Strength',
         'remainder__bearing_capacity': 'Soil Foundation Strength'
     }
-    
+
+    # Case- and prefix-insensitive lookup
+    lookup = {k.lower(): v for k, v in feature_translations.items()}
+    # Try several key variants
+    variants = [
+        feature_name,
+        feature_name.replace('remainder__', '').replace('cat__', ''),
+        feature_name.replace(' ', '_'),
+        feature_name.replace('remainder__', '').replace('cat__', '').replace(' ', '_'),
+    ]
+    for v in variants:
+        if v in feature_translations:
+            return feature_translations[v]
+        if v.lower() in lookup:
+            return lookup[v.lower()]
     # Return translated name or clean up the original if not found
     if feature_name in feature_translations:
         return feature_translations[feature_name]
@@ -193,43 +207,59 @@ def translate_feature_to_human(feature_name):
 def normalize_feature_name(feature_name):
     """Normalize feature names to match translation keys (e.g., Y10 Fyk -> Y10_fyk)"""
     return feature_name.strip().replace(" ", "_").replace("(", "").replace(")", "")
+def _is_number(s: str) -> bool:
+    try:
+        float(s)
+        return True
+    except Exception:
+        return False
 def parse_feature_condition(feature_string):
     """Parse LIME feature condition and convert to human-readable format"""
-    
-    # Handle different LIME output formats
+    # <=
     if ' <= ' in feature_string:
-        parts = feature_string.split(' <= ')
-        feature_name = normalize_feature_name(parts[0].strip())
-        value = parts[1].strip()
-        return feature_name, f"is {value} or below"
-    
-    elif ' > ' in feature_string:
-        parts = feature_string.split(' > ')
-        feature_name = normalize_feature_name(parts[0].strip())
-        value = parts[1].strip()
-        return feature_name, f"is above {value}"
-    
-    elif ' < ' in feature_string:
-        parts = feature_string.split(' < ')
-        feature_name = normalize_feature_name(parts[1].strip())
-        value = parts[0].strip()
-        return feature_name, f"is below {value}"
-    
-    elif ' >= ' in feature_string:
-        parts = feature_string.split(' >= ')
-        feature_name = normalize_feature_name(parts[0].strip())
-        value = parts[1].strip()
-        return feature_name, f"is {value} or above"
-    
-    elif ' = ' in feature_string:
-        parts = feature_string.split(' = ')
-        feature_name = normalize_feature_name(parts[0].strip())
-        value = parts[1].strip()
-        return feature_name, f"equals {value}"
-    
-    else:
-        # Fallback for other formats
-        return normalize_feature_name(feature_string.strip()), "meets certain conditions"
+        left, right = [p.strip() for p in feature_string.split(' <= ', 1)]
+        if _is_number(left) and not _is_number(right):
+            # value <= feature  => feature is above or equal to value
+            return normalize_feature_name(right), f"is {left} or above"
+        else:
+            # feature <= value
+            return normalize_feature_name(left), f"is {right} or below"
+
+    # >=
+    if ' >= ' in feature_string:
+        left, right = [p.strip() for p in feature_string.split(' >= ', 1)]
+        if _is_number(left) and not _is_number(right):
+            # value >= feature => feature is {left} or below
+            return normalize_feature_name(right), f"is {left} or below"
+        else:
+            # feature >= value
+            return normalize_feature_name(left), f"is {right} or above"
+
+    # <
+    if ' < ' in feature_string:
+        left, right = [p.strip() for p in feature_string.split(' < ', 1)]
+        if _is_number(left) and not _is_number(right):
+            # value < feature => feature is above value
+            return normalize_feature_name(right), f"is above {left}"
+        else:
+            # feature < value => feature is below value
+            return normalize_feature_name(left), f"is below {right}"
+
+    # >
+    if ' > ' in feature_string:
+        left, right = [p.strip() for p in feature_string.split(' > ', 1)]
+        if _is_number(left) and not _is_number(right):
+            # value > feature => feature is below value
+            return normalize_feature_name(right), f"is below {left}"
+        else:
+            # feature > value => feature is above value
+            return normalize_feature_name(left), f"is above {right}"
+
+    if ' = ' in feature_string:
+        left, right = [p.strip() for p in feature_string.split(' = ', 1)]
+        return normalize_feature_name(left), f"equals {right}"
+
+    return normalize_feature_name(feature_string.strip()), "meets certain conditions"
 
 def format_contribution_explanation(feature_desc, weight, is_risk_factor=True):
     """Create human-readable explanation for each feature contribution"""
@@ -244,7 +274,8 @@ def format_contribution_explanation(feature_desc, weight, is_risk_factor=True):
         impact_level = "Moderate"
     else:
         impact_level = "Weak"
-    
+    # Use the condition in the text
+    full_feature = f"{human_name} ({condition})" if "meets certain conditions" not in condition else human_name
     if is_risk_factor:
         if "strength" in human_name.lower():
             explanation = f"**{human_name}** is below optimal levels, significantly increasing collapse risk"
@@ -477,7 +508,7 @@ def main():
                             explanation_list = explanation_obj.as_list(label=pred_class)
                         except Exception:
                             labels = explanation_obj.available_labels()
-                            exp_list = explanation_obj.as_list(label=labels[0] if labels else None)
+                            explanation_list = explanation_obj.as_list(label=labels[0] if labels else None)
                             
                         st.subheader("📈 Detailed Safety Analysis")
                         # Filter out Y6_fyk and Y25_fyk from explanations
