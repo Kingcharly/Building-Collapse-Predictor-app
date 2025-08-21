@@ -17,6 +17,7 @@ from joblib import load
 import lime
 import lime.lime_tabular
 import streamlit.components.v1 as components
+import re
 
 # Page configuration
 st.set_page_config(
@@ -182,31 +183,37 @@ def translate_feature_to_human(feature_name):
 
     # Case- and prefix-insensitive lookup
     lookup = {k.lower(): v for k, v in feature_translations.items()}
-    # Try several key variants
-    variants = [
-        feature_name,
-        feature_name.replace('remainder__', '').replace('cat__', ''),
-        feature_name.replace(' ', '_'),
-        feature_name.replace('remainder__', '').replace('cat__', '').replace(' ', '_'),
-    ]
-    for v in variants:
-        if v in feature_translations:
-            return feature_translations[v]
-        if v.lower() in lookup:
-            return lookup[v.lower()]
-    # Return translated name or clean up the original if not found
-    if feature_name in feature_translations:
-        return feature_translations[feature_name]
-    else:
-        # Clean up feature names that might have prefixes
-        cleaned_name = feature_name.replace('remainder__', '').replace('cat__', '')
-        cleaned_name = cleaned_name.replace('_', ' ').title()
-        return cleaned_name
+       # Build candidate variants from the incoming name
+    base = feature_name.strip()
+    bases = {
+        base,
+        base.replace(' ', '_'),
+        base.replace('(', '').replace(')', '').replace(' ', '_')
+    }
+
+    candidates = set()
+    for b in bases:
+        candidates.update({
+            b, b.lower(),
+            f"cat__{b}", f"remainder__{b}",
+            f"cat__{b}".lower(), f"remainder__{b}".lower()
+        })
+
+    # Try exact, then case-insensitive matches
+    for c in candidates:
+        if c in feature_translations:
+            return feature_translations[c]
+        if c.lower() in lookup:
+            return lookup[c.lower()]
         
+    # Fallback: prettify unknowns
+    cleaned = base.replace('remainder__', '').replace('cat__', '').replace('_', ' ').strip()
+    return cleaned.title()
+
 # Add this helper function near your other utility functions
 def normalize_feature_name(feature_name):
     """Normalize feature names to match translation keys (e.g., Y10 Fyk -> Y10_fyk)"""
-    return feature_name.strip().replace(" ", "_").replace("(", "").replace(")", "")
+    return feature_name.strip().replace(" ", "_").replace("(", "").replace(")", "").replace("'", "")
 def _is_number(s: str) -> bool:
     try:
         float(s)
@@ -214,52 +221,64 @@ def _is_number(s: str) -> bool:
     except Exception:
         return False
 def parse_feature_condition(feature_string):
-    """Parse LIME feature condition and convert to human-readable format"""
-    # <=
-    if ' <= ' in feature_string:
-        left, right = [p.strip() for p in feature_string.split(' <= ', 1)]
-        if _is_number(left) and not _is_number(right):
-            # value <= feature  => feature is above or equal to value
-            return normalize_feature_name(right), f"is {left} or above"
+    """Parse LIME feature condition into (canonical_feature_name, human_condition)"""
+    if not feature_string:
+        return "", "meets certain conditions"
+
+    s = str(feature_string).strip()
+    # Normalize unicode operators and whitespace
+    s = s.replace('≤', '<=').replace('≥', '>=').replace('–', '-').replace('−', '-')
+    s = re.sub(r'\s+', ' ', s)
+
+    # Pattern: number OP feature   e.g., 221.08 < Y10 Fyk
+    m = re.match(r'^\s*(?P<num>-?\d+(?:\.\d+)?)\s*(?P<op><=|>=|<|>|=)\s*(?P<feat>.+?)\s*$', s)
+    if m:
+        num = m.group('num')
+        op = m.group('op')
+        feat = m.group('feat')
+        feat_norm = normalize_feature_name(feat)
+        if op == '<':
+            cond = f"is above {num}"
+        elif op == '<=':
+            cond = f"is {num} or above"
+        elif op == '>':
+            cond = f"is below {num}"
+        elif op == '>=':
+            cond = f"is {num} or below"
         else:
-            # feature <= value
-            return normalize_feature_name(left), f"is {right} or below"
+            cond = f"equals {num}"
+        return feat_norm, cond
 
-    # >=
-    if ' >= ' in feature_string:
-        left, right = [p.strip() for p in feature_string.split(' >= ', 1)]
-        if _is_number(left) and not _is_number(right):
-            # value >= feature => feature is {left} or below
-            return normalize_feature_name(right), f"is {left} or below"
+    # Pattern: feature OP number   e.g., Y10 Fyk < 221.08
+    m = re.match(r'^\s*(?P<feat>.+?)\s*(?P<op><=|>=|<|>|=)\s*(?P<num>-?\d+(?:\.\d+)?)\s*$', s)
+    if m:
+        feat = m.group('feat')
+        op = m.group('op')
+        num = m.group('num')
+        feat_norm = normalize_feature_name(feat)
+        if op == '<':
+            cond = f"is below {num}"
+        elif op == '<=':
+            cond = f"is {num} or below"
+        elif op == '>':
+            cond = f"is above {num}"
+        elif op == '>=':
+            cond = f"is {num} or above"
         else:
-            # feature >= value
-            return normalize_feature_name(left), f"is {right} or above"
+            cond = f"equals {num}"
+        return feat_norm, cond
 
-    # <
-    if ' < ' in feature_string:
-        left, right = [p.strip() for p in feature_string.split(' < ', 1)]
-        if _is_number(left) and not _is_number(right):
-            # value < feature => feature is above value
-            return normalize_feature_name(right), f"is above {left}"
-        else:
-            # feature < value => feature is below value
-            return normalize_feature_name(left), f"is below {right}"
+    # Pattern: "Feature (is X or below/above)"
+    m = re.match(r'^(?P<feat>.+?)\s*\(\s*is\s*(?P<num>-?\d+(?:\.\d+)?)\s*or\s*(?P<dir>below|above)\s*\)\s*$', s, flags=re.IGNORECASE)
+    if m:
+        feat_norm = normalize_feature_name(m.group('feat'))
+        num = m.group('num')
+        dirn = m.group('dir').lower()
+        cond = f"is {num} or {dirn}"
+        return feat_norm, cond
 
-    # >
-    if ' > ' in feature_string:
-        left, right = [p.strip() for p in feature_string.split(' > ', 1)]
-        if _is_number(left) and not _is_number(right):
-            # value > feature => feature is below value
-            return normalize_feature_name(right), f"is below {left}"
-        else:
-            # feature > value => feature is above value
-            return normalize_feature_name(left), f"is above {right}"
-
-    if ' = ' in feature_string:
-        left, right = [p.strip() for p in feature_string.split(' = ', 1)]
-        return normalize_feature_name(left), f"equals {right}"
-
-    return normalize_feature_name(feature_string.strip()), "meets certain conditions"
+    # Fallback: return as-is
+    return normalize_feature_name(s), "meets certain conditions"
 
 def format_contribution_explanation(feature_desc, weight, is_risk_factor=True):
     """Create human-readable explanation for each feature contribution"""
