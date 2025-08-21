@@ -130,11 +130,11 @@ def translate_feature_to_human(feature_name):
         'bearing_capacity': 'Soil Foundation Strength',
         
         # Steel reinforcement features
-        'y8_fyk': '8mm Steel Bar Strength',
-        'y10_fyk': '10mm Steel Bar Strength',
-        'y12_fyk': '12mm Steel Bar Strength',
-        'y16_fyk': '16mm Steel Bar Strength',
-        'y20_fyk': '20mm Steel Bar Strength',
+        'y8_fyk': 'Yield Strength for 8mm bar',
+        'y10_fyk': 'Yield Strength for 10mm bar',
+        'y12_fyk': 'Yield Strength for 12mm bar',
+        'y16_fyk': 'Yield Strength for 16mm bar',
+        'y20_fyk': 'Yield Strength for 20mm bar',
 
         
         # Building characteristics
@@ -171,13 +171,11 @@ def translate_feature_to_human(feature_name):
         'remainder__column_fck': 'Concrete Column Strength',
         'remainder__beam_fck': 'Concrete Beam Strength',
         'remainder__slab_fck': 'Concrete Slab Strength',
-        'remainder__Y6_fyk': '6mm Steel Bar Strength',
-        'remainder__Y8_fyk': '8mm Steel Bar Strength',
-        'remainder__Y10_fyk': '10mm Steel Bar Strength',
-        'remainder__Y12_fyk': '12mm Steel Bar Strength',
-        'remainder__Y16_fyk': '16mm Steel Bar Strength',
-        'remainder__Y20_fyk': '20mm Steel Bar Strength',
-        'remainder__Y25_fyk': '25mm Steel Bar Strength',
+        'remainder__Y8_fyk': 'Yield Strength for 8mm bar',
+        'remainder__Y10_fyk': 'Yield Strength for 10mm bar',
+        'remainder__Y12_fyk': 'Yield Strength for 12mm bar',
+        'remainder__Y16_fyk': 'Yield Strength for 16mm bar',
+        'remainder__Y20_fyk': 'Yield Strength for 20mm bar',
         'remainder__bearing_capacity': 'Soil Foundation Strength'
     }
 
