@@ -475,40 +475,40 @@ def main():
                             labels = explanation_obj.available_labels()
                             exp_list = explanation_obj.as_list(label=labels[0] if labels else None)
                             
-                            st.subheader("📈 Detailed Safety Analysis")
-                            # Filter out Y6_fyk and Y25_fyk from explanations
-                            filtered_explanation = [(f, w) for f, w in explanation_list 
+                        st.subheader("📈 Detailed Safety Analysis")
+                        # Filter out Y6_fyk and Y25_fyk from explanations
+                        filtered_explanation = [(f, w) for f, w in explanation_list 
                                    if 'Y6_fyk' not in f and 'Y25_fyk' not in f]
 
-                            # Determine if this is a collapse prediction or safe prediction
-                            is_collapse_prediction = (pred_class == 1)
-                            if is_collapse_prediction:
-                                # For collapse predictions, positive weights increase risk
-                                risk_factors = [(f, w) for f, w in filtered_explanation if w > 0]
-                                safety_factors = [(f, w) for f, w in filtered_explanation if w < 0]
+                        # Determine if this is a collapse prediction or safe prediction
+                        is_collapse_prediction = (pred_class == 1)
+                        if is_collapse_prediction:
+                            # For collapse predictions, positive weights increase risk
+                            risk_factors = [(f, w) for f, w in filtered_explanation if w > 0]
+                            safety_factors = [(f, w) for f, w in filtered_explanation if w < 0]
                 
-                                risk_title = "🔴 Factors Increasing Collapse Risk:"
-                                safety_title = "🟢 Factors Reducing Collapse Risk:"
-                            else:
-                                # For safe predictions, negative weights support safety, positive weights work against safety
-                                safety_factors = [(f, w) for f, w in filtered_explanation if w < 0]
-                                risk_factors = [(f, w) for f, w in filtered_explanation if w > 0]
+                        risk_title = "🔴 Factors Increasing Collapse Risk:"
+                        safety_title = "🟢 Factors Reducing Collapse Risk:"
+                        else:
+                            # For safe predictions, negative weights support safety, positive weights work against safety
+                            safety_factors = [(f, w) for f, w in filtered_explanation if w < 0]
+                            risk_factors = [(f, w) for f, w in filtered_explanation if w > 0]
                                 
-                                risk_title = "🟡 Factors Working Against Safety:"
-                                safety_title = "🟢 Factors Supporting Building Safety:"
+                        risk_title = "🟡 Factors Working Against Safety:"
+                        safety_title = "🟢 Factors Supporting Building Safety:"
 
-                            # Sort factors
-                            risk_factors.sort(key=lambda x: abs(x[1]), reverse=True)
-                            safety_factors.sort(key=lambda x: abs(x[1]), reverse=True)
+                        # Sort factors
+                        risk_factors.sort(key=lambda x: abs(x[1]), reverse=True)
+                        safety_factors.sort(key=lambda x: abs(x[1]), reverse=True)
                             
-                            # Display risk factors (most important for low-risk predictions)
-                            if risk_factors:
-                                st.markdown(f"**{risk_title}")
-                                if is_collapse_prediction:
-                                    st.markdown("*These factors make the building more vulnerable:*")
-                                else:
-                                    st.markdown("*Theese factors could be improved for better safety:*")
-                                
+                        # Display risk factors (most important for low-risk predictions)
+                        if risk_factors:
+                            st.markdown(f"**{risk_title}**")
+                            if is_collapse_prediction:
+                                st.markdown("*These factors make the building more vulnerable:*")
+                            else:
+                                st.markdown("*These factors could be improved for better safety:*")
+
                                 for i, (feature_desc, weight) in enumerate(risk_factors[:5]):
                                     if 'Y6_fyk' in feature_desc or 'Y25_fyk' in feature_desc:
                                         continue
@@ -516,15 +516,15 @@ def main():
                                     st.markdown(f"  {i+1}. {explanation_text}")
                             
                           
-                            # Display safety factors (most important for low-risk predictions)
-                            if safety_factors:
-                                st.markdown(f"**{safety_title}**")
-                                st.markdown("*These factors contributes to the building's safety:*")
-                                for i, (feature_desc, weight) in enumerate(safety_factors[:5]):
-                                    if 'Y6_fyk' in feature_desc or 'Y25_fyk' in feature_desc:
-                                        continue
-                                    explanation_text = format_contribution_explanation(feature_desc, weight, is_risk_factor=False)
-                                    st.markdown(f"  {i+1}. {explanation_text}")
+                        # Display safety factors (most important for low-risk predictions)
+                        if safety_factors:
+                            st.markdown(f"**{safety_title}**")
+                            st.markdown("*These factors contributes to the building's safety:*")
+                            for i, (feature_desc, weight) in enumerate(safety_factors[:5]):
+                                if 'Y6_fyk' in feature_desc or 'Y25_fyk' in feature_desc:
+                                    continue
+                                explanation_text = format_contribution_explanation(feature_desc, weight, is_risk_factor=False)
+                                st.markdown(f"  {i+1}. {explanation_text}")
                                     
                             # Add summary interpretation
                             st.markdown("---")
