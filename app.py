@@ -521,10 +521,7 @@ def main():
                                     st.info(f"💡 **Improvement Opportunity**: Consider addressing factors working against safety (impact: {total_risk:.3f}) for even better performance.")
     
                
-                    else:
-                        st.error("Could not generate LIME explanation")
-                        st.info("This may be due to model complexity or data preprocessing issues.")
-                        
+                                           
                     
                 
         
