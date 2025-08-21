@@ -86,7 +86,12 @@ def create_lime_explanation_simple(explainer, pipeline, input_data, num_features
         # Transform input data through preprocessing pipeline
         input_df = pd.DataFrame([input_data])
         input_transformed = pipeline.named_steps['preprocessor'].transform(input_df)
-        
+
+        # Row as a 1D dense vector (works for numpy array or sparse vector)
+        if hasattr(input_transformed, "toarray"):
+            data_row = input_transformed.toarray()[0]
+        else:
+            data_row = np.asarray(input_transformed)[0].ravel()
         # Define prediction function for LIME
         def predict_fn(X):
             # X is already preprocessed, so we only need the classifier
@@ -104,7 +109,8 @@ def create_lime_explanation_simple(explainer, pipeline, input_data, num_features
             data_row=input_transformed[0],
             predict_fn=predict_fn,
             num_features=num_features,
-            labels=[prediction]
+            labels=[prediction],
+            top_labels = 2
         )
         
         return explanation, prediction, probabilities
@@ -263,7 +269,17 @@ def plot_lime_explanation(explanation):
     if explanation is None:
         return None
         
-    explanation_list = explanation.as_list()
+    # USe the predicted label if provided and available
+    try:
+        if label is not None:
+            explanation_list = explanation.as_list(label=label)
+        else:
+            #fallback to the first available label
+            labels = explanation.availble_labels()
+            exlanation_list = explanation.as_list(label=labels[0] if labels else None)
+    except Exception:
+        # final fallback
+        explanation_list = explanation.as_list()
     features = [item[0] for item in explanation_list]
     weights = [item[1] for item in explanation_list]
 
@@ -448,12 +464,16 @@ def main():
                         st.info('This may be due to model complexity or data preprocessing issues')
                     else:
                         # Interactive LIME plot
-                        fig_lime = plot_lime_explanation(explanation_obj)
+                        fig_lime = plot_lime_explanation(explanation_obj, label=pred_class)
                         if fig_lime is not None:
                             st.plotly_chart(fig_lime, use_container_width=True)
-                            
+                        # Get list for the predicted class 
+                        try:                       
                             # Feature contribution analysis
-                            explanation_list = explanation_obj.as_list()
+                            explanation_list = explanation_obj.as_list(label=pred_class)
+                        except Exception:
+                            labels = explanation_obj.available_labels()
+                            exp_list = explanation_obj.as_list(label=labels[0] if labels else None)
                             
                             st.subheader("📈 Detailed Safety Analysis")
                             # Filter out Y6_fyk and Y25_fyk from explanations
@@ -461,7 +481,7 @@ def main():
                                    if 'Y6_fyk' not in f and 'Y25_fyk' not in f]
 
                             # Determine if this is a collapse prediction or safe prediction
-                            is_collapse_prediction = pred == 1
+                            is_collapse_prediction = (pred_class == 1)
                             if is_collapse_prediction:
                                 # For collapse predictions, positive weights increase risk
                                 risk_factors = [(f, w) for f, w in filtered_explanation if w > 0]
@@ -606,6 +626,7 @@ def main():
 if __name__ == "__main__":
 
     main()
+
 
 
 
