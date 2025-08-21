@@ -541,13 +541,17 @@ def main():
                             st.markdown(f"**{risk_title}**")
                             if is_collapse_prediction:
                                 st.markdown("*These factors make the building more vulnerable:*")
-                                for i, (feature_desc, weight) in enumerate(risk_factors[:5]):
+                            else:
+                                st.markdown("*These factors could be improved for better safety:*")
+                            for i, (feature_desc, weight) in enumerate(risk_factors[:5]):
                                     if 'Y6_fyk' in feature_desc or 'Y25_fyk' in feature_desc:
                                         continue
                                     explanation_text = format_contribution_explanation(feature_desc, weight, is_risk_factor=True)
                                     st.markdown(f"  {i+1}. {explanation_text}")
-                            else:
-                                st.markdown("*These factors could be improved for better safety:*")
+                        else:
+                            # Optional message when there are no positive weights
+                            if not is_collapse_prediction:
+                                st.info("No significant risk factors detected. Building appears structurally sound.")
 
                                 
                             
@@ -556,11 +560,11 @@ def main():
                         if safety_factors:
                             st.markdown(f"**{safety_title}**")
                             st.markdown("*These factors contributes to the building's safety:*")
-                            for i, (feature_desc, weight) in enumerate(safety_factors[:5]):
-                                if 'Y6_fyk' in feature_desc or 'Y25_fyk' in feature_desc:
-                                    continue
-                                explanation_text = format_contribution_explanation(feature_desc, weight, is_risk_factor=False)
-                                st.markdown(f"  {i+1}. {explanation_text}")
+                        for i, (feature_desc, weight) in enumerate(safety_factors[:5]):
+                            if 'Y6_fyk' in feature_desc or 'Y25_fyk' in feature_desc:
+                                continue
+                            explanation_text = format_contribution_explanation(feature_desc, weight, is_risk_factor=False)
+                            st.markdown(f"  {i+1}. {explanation_text}")
                                     
                             # Add summary interpretation
                             st.markdown("---")
