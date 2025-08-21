@@ -104,7 +104,7 @@ def create_lime_explanation_simple(explainer, pipeline, input_data, num_features
             data_row=input_transformed[0],
             predict_fn=predict_fn,
             num_features=num_features,
-            labels=[class_to_explain]
+            labels=[prediction]
         )
         
         return explanation, prediction, probabilities
@@ -590,6 +590,7 @@ def main():
 if __name__ == "__main__":
 
     main()
+
 
 
 
