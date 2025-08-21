@@ -264,7 +264,7 @@ def format_contribution_explanation(feature_desc, weight, is_risk_factor=True):
     
     return f"{explanation} ({impact_level} influence: {weight:+.3f})"
 
-def plot_lime_explanation(explanation):
+def plot_lime_explanation(explanation, label=None):
     """Create interactive LIME explanation plot"""
     if explanation is None:
         return None
@@ -626,6 +626,7 @@ def main():
 if __name__ == "__main__":
 
     main()
+
 
 
 
