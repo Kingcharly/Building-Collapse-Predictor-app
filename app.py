@@ -285,12 +285,12 @@ def plot_lime_explanation(explanation, label=None):
 
     # Filter out removed features
     filtered_features = []
-    filtered_weights = []
+    filtered_weight = []
 
     for f, w in zip (features, weight):
         if 'Y6_fyk' not in f and 'Y25_fyk' not in f:
             filtered_features.append(f)
-            filtered_weights.append(w)
+            filtered_weight.append(w)
 
     # Translate to human-readable names
     human_features = []
@@ -299,14 +299,14 @@ def plot_lime_explanation(explanation, label=None):
         human_name = translate_feature_to_human(feature_name)
         human_features.append(f"{human_name} ({condition})")
     # Create color mapping
-    colors = ['rgba(255, 99, 71, 0.8)' if w < 0 else 'rgba(60, 179, 113, 0.8)' for w in weights]
+    colors = ['rgba(255, 99, 71, 0.8)' if w < 0 else 'rgba(60, 179, 113, 0.8)' for w in weight]
     
     fig = go.Figure(go.Bar(
-        x=weights,
+        x=weight,
         y=human_features,
         orientation='h',
         marker_color=colors,
-        text=[f'{w:.3f}' for w in weights],
+        text=[f'{w:.3f}' for w in weight],
         textposition='outside',
         hovertemplate='<b>%{y}</b><br>Impact: %{x:.3f}<br><extra></extra>'
     ))
@@ -626,6 +626,7 @@ def main():
 if __name__ == "__main__":
 
     main()
+
 
 
 
