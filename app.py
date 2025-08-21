@@ -171,17 +171,17 @@ def translate_feature_to_human(feature_name):
         'remainder__column_fck': 'Concrete Column Strength',
         'remainder__beam_fck': 'Concrete Beam Strength',
         'remainder__slab_fck': 'Concrete Slab Strength',
-        'remainder__Y6_fyk': '6mm Steel Bar Strength',
-        'remainder__Y8_fyk': '8mm Steel Bar Strength',
-        'remainder__Y10_fyk': '10mm Steel Bar Strength',
-        'remainder__Y12_fyk': '12mm Steel Bar Strength',
-        'remainder__Y16_fyk': '16mm Steel Bar Strength',
-        'remainder__Y20_fyk': '20mm Steel Bar Strength',
-        'remainder__Y25_fyk': '25mm Steel Bar Strength',
+        'remainder__y6_fyk': '6mm Steel Bar Strength',
+        'remainder__y8_fyk': '8mm Steel Bar Strength',
+        'remainder__y10_fyk': '10mm Steel Bar Strength',
+        'remainder__y12_fyk': '12mm Steel Bar Strength',
+        'remainder__y16_fyk': '16mm Steel Bar Strength',
+        'remainder__y20_fyk': '20mm Steel Bar Strength',
+        'remainder__y25_fyk': '25mm Steel Bar Strength',
         'remainder__bearing_capacity': 'Soil Foundation Strength'
     }
 
-    key = feature_name.lower()
+    
     if key in feature_translations:
         return feature_translations[key]
     # fallback
@@ -189,12 +189,16 @@ def translate_feature_to_human(feature_name):
 
 # Add this helper function near your other utility functions
 def normalize_feature_name(feature_name):
-    """Turn “Y12 Fyk” → “y12_fyk”, stripping out any parens or symbols."""
+    """Normalize feature names: strip 'cat__'/'remainder__', remove symbols, spaces→underscore, lowercase."""
     s = feature_name.strip()
-    # remove parentheses and any non-alphanumeric/_ chars
+    # 1. strip any cat__ or remainder__ prefix
+    s = re.sub(r'^(?:cat__|remainder__)', '', s, flags=re.IGNORECASE)
+    # 2. remove parentheses and non-alphanumeric characters
     s = re.sub(r'[^\w\s]', '', s)
-    # spaces → underscore, then lowercase
-    return s.replace(' ', '_').lower()
+    # 3. collapse whitespace, convert spaces to underscore, lowercase
+    s = re.sub(r'\s+', ' ', s).replace(' ', '_').lower()
+    return s
+
 def _is_number(s: str) -> bool:
     try:
         float(s)
