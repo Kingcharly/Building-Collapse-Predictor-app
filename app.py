@@ -120,7 +120,7 @@ def create_lime_explanation_simple(explainer, pipeline, input_data, num_features
         return None
 def translate_feature_to_human(feature_name):
     """Translate technical feature names to human-readable descriptions"""
-    key = feature_name.lower().replace('cat__', '').replace('remainder__', '')
+    key = normalize_feature_name(feature_name)
     # Define mappings for technical terms to human language
     feature_translations = {
         # Structural strength features
@@ -181,11 +181,7 @@ def translate_feature_to_human(feature_name):
         'remainder__bearing_capacity': 'Soil Foundation Strength'
     }
 
-    key = feature_name.lower()
-    if key in feature_translations:
-        return feature_translations[key]
-    # fallback
-    return key.replace('_', ' ').title()
+    return feature_translations.get(key, key.replace('_', ' ').title())
 
 # Add this helper function near your other utility functions
 def normalize_feature_name(feature_name):
