@@ -487,15 +487,15 @@ def main():
                             risk_factors = [(f, w) for f, w in filtered_explanation if w > 0]
                             safety_factors = [(f, w) for f, w in filtered_explanation if w < 0]
                 
-                        risk_title = "🔴 Factors Increasing Collapse Risk:"
-                        safety_title = "🟢 Factors Reducing Collapse Risk:"
+                            risk_title = "🔴 Factors Increasing Collapse Risk:"
+                            safety_title = "🟢 Factors Reducing Collapse Risk:"
                         else:
                             # For safe predictions, negative weights support safety, positive weights work against safety
                             safety_factors = [(f, w) for f, w in filtered_explanation if w < 0]
                             risk_factors = [(f, w) for f, w in filtered_explanation if w > 0]
                                 
-                        risk_title = "🟡 Factors Working Against Safety:"
-                        safety_title = "🟢 Factors Supporting Building Safety:"
+                            risk_title = "🟡 Factors Working Against Safety:"
+                            safety_title = "🟢 Factors Supporting Building Safety:"
 
                         # Sort factors
                         risk_factors.sort(key=lambda x: abs(x[1]), reverse=True)
