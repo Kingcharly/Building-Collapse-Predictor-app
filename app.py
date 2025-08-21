@@ -183,12 +183,9 @@ def translate_feature_to_human(feature_name):
 
     key = feature_name.lower()
     if key in feature_translations:
-        human =  feature_translations[key]
+        return feature_translations[key]
     # fallback
-    human =  key.replace('_', ' ').title()
-    # strip any trailing standalone number (e.g. “40960”) 
-    human = re.sub(r'\s*\d+(\.\d+)?$', '', human).strip()
-    return human
+    return key.replace('_', ' ').title()
 
 # Add this helper function near your other utility functions
 def normalize_feature_name(feature_name):
@@ -209,17 +206,21 @@ def _is_number(s: str) -> bool:
     except Exception:
         return False
 def parse_feature_condition(feature_string):
-    """Pull out the feature-name and its numeric condition (preserving the decimal)."""
+    """Parse LIME feature condition into (canonical_feature_name, human_condition)"""
+    if not feature_string:
+        return "", "meets certain conditions"
+
     s = str(feature_string).strip()
-    # unify unicode ops
-    s = s.replace('≤','<=').replace('≥','>=').replace('–','-').replace('−','-')
-    # single‐whitespace
-    s = re.sub(r'\s+',' ', s)
+    # Normalize unicode operators and whitespace
+    s = s.replace('≤', '<=').replace('≥', '>=').replace('–', '-').replace('−', '-')
+    s = re.sub(r'\s+', ' ', s)
 
-    # number ∘op∘ feature, e.g. “221.08 < Y12 Fyk”
-    m = re.match(r'^(?P<num>-?\d+(?:\.\d+)?)\s*(?P<op><=|>=|<|>)\s*(?P<feat>.+)$', s)
+    # Pattern: number OP feature   e.g., 221.08 < Y10 Fyk
+    m = re.match(r'^\s*(?P<num>-?\d+(?:\.\d+)?)\s*(?P<op><=|>=|<|>|=)\s*(?P<feat>.+?)\s*$', s)
     if m:
-        num, op, feat = m.group('num'), m.group('op'), m.group('feat')
+        num = m.group('num')
+        op = m.group('op')
+        feat = m.group('feat')
         feat_norm = normalize_feature_name(feat)
         if op == '<':
             cond = f"is above {num}"
@@ -227,14 +228,18 @@ def parse_feature_condition(feature_string):
             cond = f"is {num} or above"
         elif op == '>':
             cond = f"is below {num}"
-        else:  # >=
+        elif op == '>=':
             cond = f"is {num} or below"
+        else:
+            cond = f"equals {num}"
         return feat_norm, cond
 
-    # feature ∘op∘ number, e.g. “Y12 Fyk <= 409.60”
-    m = re.match(r'^(?P<feat>.+)\s*(?P<op><=|>=|<|>)\s*(?P<num>-?\d+(?:\.\d+)?)$', s)
+    # Pattern: feature OP number   e.g., Y10 Fyk < 221.08
+    m = re.match(r'^\s*(?P<feat>.+?)\s*(?P<op><=|>=|<|>|=)\s*(?P<num>-?\d+(?:\.\d+)?)\s*$', s)
     if m:
-        feat, op, num = m.group('feat'), m.group('op'), m.group('num')
+        feat = m.group('feat')
+        op = m.group('op')
+        num = m.group('num')
         feat_norm = normalize_feature_name(feat)
         if op == '<':
             cond = f"is below {num}"
@@ -242,11 +247,22 @@ def parse_feature_condition(feature_string):
             cond = f"is {num} or below"
         elif op == '>':
             cond = f"is above {num}"
-        else:  # >=
+        elif op == '>=':
             cond = f"is {num} or above"
+        else:
+            cond = f"equals {num}"
         return feat_norm, cond
 
-    # fallback
+    # Pattern: "Feature (is X or below/above)"
+    m = re.match(r'^(?P<feat>.+?)\s*\(\s*is\s*(?P<num>-?\d+(?:\.\d+)?)\s*or\s*(?P<dir>below|above)\s*\)\s*$', s, flags=re.IGNORECASE)
+    if m:
+        feat_norm = normalize_feature_name(m.group('feat'))
+        num = m.group('num')
+        dirn = m.group('dir').lower()
+        cond = f"is {num} or {dirn}"
+        return feat_norm, cond
+
+    # Fallback: return as-is
     return normalize_feature_name(s), "meets certain conditions"
 
 def format_contribution_explanation(feature_desc, weight, is_risk_factor=True):
