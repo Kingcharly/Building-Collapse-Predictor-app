@@ -132,7 +132,6 @@ def translate_feature_to_human(feature_name):
         'Y8_fyk': '8mm Steel Bar Strength',
         'Y10_fyk': '10mm Steel Bar Strength',
         'Y12_fyk': '12mm Steel Bar Strength',
-        'y12_fyk': '12mm Steel Bar Strength',
         'Y16_fyk': '16mm Steel Bar Strength',
         'Y20_fyk': '20mm Steel Bar Strength',
         
@@ -150,7 +149,6 @@ def translate_feature_to_human(feature_name):
         'cat__location_Plateau': 'Building Located in Plateau State',
         
         'cat__building_type_Residential': 'Residential Building Type',
-        'building_type_residential': 'Residential Building Type',
         'cat__building_type_Commercial': 'Commercial Building Type',
         'cat__building_type_Church': 'Church Building Type',
         'cat__building_type_School': 'School Building Type',
@@ -181,10 +179,10 @@ def translate_feature_to_human(feature_name):
         'remainder__Y25_fyk': '25mm Steel Bar Strength',
         'remainder__bearing_capacity': 'Soil Foundation Strength'
     }
-    key = feature_name.lower()
+    
     # Return translated name or clean up the original if not found
-    if key in feature_translations:
-        return feature_translations[key]
+    if feature_name in feature_translations:
+        return feature_translations[feature_name]
     else:
         # Clean up feature names that might have prefixes
         cleaned_name = feature_name.replace('remainder__', '').replace('cat__', '')
@@ -228,12 +226,7 @@ def parse_feature_condition(feature_string):
     else:
         # Fallback for other formats
         return feature_string.strip(), "meets certain conditions"
-
-def normalize_feature_name(feature_name):
-    """Normalize feature names to match translation keys"""
-    # Remove extra symbols, lower case, replace spaces with underscores
-    return feature_name.replace(" ", "_").replace("(", "").replace(")", "").replace("<", "").replace(">", "").replace("=", "").lower()
-
+        
 def format_contribution_explanation(feature_desc, weight, is_risk_factor=True):
     """Create human-readable explanation for each feature contribution"""
     feature_name, condition = parse_feature_condition(feature_desc)
