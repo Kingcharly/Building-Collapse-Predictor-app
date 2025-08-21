@@ -281,7 +281,7 @@ def plot_lime_explanation(explanation):
     for feature_desc in filtered_features:
         feature_name, condition = parse_feature_condition(feature_desc)
         human_name = translate_feature_to_human(feature_name)
-        human_features.append(f'{human_name} ({condition})")
+        human_features.append(f"{human_name} ({condition})")
     # Create color mapping
     colors = ['rgba(255, 99, 71, 0.8)' if w < 0 else 'rgba(60, 179, 113, 0.8)' for w in weights]
     
@@ -603,6 +603,7 @@ def main():
 if __name__ == "__main__":
 
     main()
+
 
 
 
