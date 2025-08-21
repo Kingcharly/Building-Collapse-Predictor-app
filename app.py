@@ -285,37 +285,32 @@ def format_contribution_explanation(feature_desc, weight, is_risk_factor=True):
     feature_name, condition = parse_feature_condition(feature_desc)
     human_name = translate_feature_to_human(feature_name)
     abs_weight = abs(weight)
-    
-    # Determine impact level
-    if abs_weight > 0.1:
-        impact_level = "Strong"
-    elif abs_weight > 0.05:
-        impact_level = "Moderate"
-    else:
-        impact_level = "Weak"
-    # Use the condition in the text
+
+    # Impact label
+    impact_level = "Strong" if abs_weight > 0.10 else "Moderate" if abs_weight > 0.05 else "Weak"
+
+    # Always include the parsed condition with the translated name
     full_feature = f"{human_name} ({condition})" if "meets certain conditions" not in condition else human_name
+
     if is_risk_factor:
         if "strength" in human_name.lower():
-            explanation = f"**{human_name}** is below optimal levels, significantly increasing collapse risk"
+            explanation = f"**{full_feature}** is below optimal levels, significantly increasing collapse risk"
         elif "supervision" in human_name.lower() and "poor" in human_name.lower():
-            explanation = f"**{human_name}** increases vulnerability to structural failures"
-        elif "floor" in human_name.lower():
-            explanation = f"**{human_name}** adds structural load and complexity"
-        elif "risk" in human_name.lower():
-            explanation = f"**{human_name}** indicates elevated danger level"
+            explanation = f"**{full_feature}** increases vulnerability to structural failures"
+        elif "foundation" in human_name.lower():
+            explanation = f"**{full_feature}** may reduce overall stability"
         else:
-            explanation = f"**{human_name}** contributes to structural vulnerability"
+            explanation = f"**{full_feature}** contributes to structural vulnerability"
     else:
         if "strength" in human_name.lower():
-            explanation = f"**{human_name}** meets safety standards, reducing collapse risk"
+            explanation = f"**{full_feature}** meets safety standards, reducing collapse risk"
         elif "supervision" in human_name.lower() and "good" in human_name.lower():
-            explanation = f"**{human_name}** ensures quality construction practices"
+            explanation = f"**{full_feature}** ensures quality construction practices"
         elif "foundation" in human_name.lower():
-            explanation = f"**{human_name}** provides stable structural support"
+            explanation = f"**{full_feature}** provides stable structural support"
         else:
-            explanation = f"**{human_name}** contributes to structural safety"
-    
+            explanation = f"**{full_feature}** contributes to structural safety"
+
     return f"{explanation} ({impact_level} influence: {weight:+.3f})"
 
 def plot_lime_explanation(explanation, label=None):
