@@ -121,6 +121,31 @@ def create_lime_explanation_simple(explainer, pipeline, input_data, num_features
 def translate_feature_to_human(feature_name):
     """Translate technical feature names to human-readable descriptions"""
     key = normalize_feature_name(feature_name)
+
+    # Dynamic patterns first
+    m = re.match(r'^y(\d+)_fyk$', key)
+    if m:
+        return f"{m.group(1)}mm Steel Bar Strength"
+
+    if key.startswith('supervision_'):
+        val = key[len('supervision_'):].lower()
+        return {
+            'yes': 'Good Construction Supervision',
+            'no': 'Poor Construction Supervision',
+            'unknown': 'Unknown Construction Supervision'
+        }.get(val, f"{val.title()} Construction Supervision")
+
+    if key.startswith('location_'):
+        loc = key[len('location_'):].replace('_', ' ').title()
+        return f"Building Located in {loc} State"
+
+    if key.startswith('building_type_'):
+        bt = key[len('building_type_'):].replace('_', ' ').title()
+        return f"{bt} Building Type"
+
+    if key.startswith('foundation_type_'):
+        ft = key[len('foundation_type_'):].replace('_', ' ').title()
+        return f"{ft} Foundation System"
     # Define mappings for technical terms to human language
     feature_translations = {
         # Structural strength features
@@ -188,16 +213,20 @@ def translate_feature_to_human(feature_name):
 
 # Add this helper function near your other utility functions
 def normalize_feature_name(feature_name):
-    """Normalize feature names: strip 'cat__'/'remainder__', convert to standard format"""
-    s = feature_name.strip()
-    # 1. strip any cat__ or remainder__ prefix
-    s = re.sub(r'^(?:cat__|remainder__)', '', s, flags=re.IGNORECASE)
-    # 2. Handle steel bar naming: "Y12 Fyk" -> "Y12_fyk"
-    s = re.sub(r'(Y\d+)\s+(Fyk)', r'\1_\2', s, flags=re.IGNORECASE)
-    # 3. remove other parentheses and non-alphanumeric characters except underscore
-    s = re.sub(r'[^\w\s_]', '', s)
-    # 4. collapse whitespace, convert remaining spaces to underscore, lowercase
-    s = re.sub(r'\s+', ' ', s).replace(' ', '_').lower()
+    """Normalize raw/LIME feature names to a consistent snake_case key."""
+    s = str(feature_name).strip()
+
+    # Remove common ColumnTransformer prefixes (tolerate single or double underscore)
+    s = re.sub(r'^(?:cat|num|remainder)__', '', s, flags=re.IGNORECASE)
+    s = re.sub(r'^(?:cat|num|remainder)_',  '', s, flags=re.IGNORECASE)
+
+    # Standardize steel bar names: "Y12 Fyk", "y12_fyk", "Y12-FYK" -> "y12_fyk"
+    s = re.sub(r'(?i)\by\s*(\d+)\s*[_\-\s]*fyk\b', r'y\1_fyk', s)
+
+    # Keep word chars, normalize spacing, then snake_case + lowercase
+    s = re.sub(r'[^\w]+', ' ', s)
+    s = re.sub(r'\s+', ' ', s).strip()
+    s = s.replace(' ', '_').lower()
     return s
 
 def _is_number(s: str) -> bool:
