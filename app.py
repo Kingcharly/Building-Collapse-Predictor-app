@@ -81,7 +81,7 @@ def predict_with_pipeline(pipeline, input_data):
     probabilities = pipeline.predict_proba(input_df)[0]
     return prediction, probabilities
 
-def create_lime_explanation_simple(explainer, pipeline, input_data, num_features=15):
+def create_lime_explanation_simple(explainer, pipeline, input_data, num_features=10):
     """Generate LIME explanation using preprocessed approach"""
     try:
         # Transform input data through preprocessing pipeline
@@ -181,7 +181,12 @@ def translate_feature_to_human(feature_name):
         'remainder__bearing_capacity': 'Soil Foundation Strength'
     }
 
-    return feature_translations.get(key, key.replace('_', ' ').title())
+    human = feature_translations.get(key, key.replace('_', ' ').title())
+
+    # strip any trailing numeric suffix (e.g. "40960", "383.88", etc.)
+    human = re.sub(r'\s*\d+(?:\.\d+)?$', '', human).strip()
+
+    return human
 
 # Add this helper function near your other utility functions
 def normalize_feature_name(feature_name):
