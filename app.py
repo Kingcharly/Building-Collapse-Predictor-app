@@ -124,10 +124,10 @@ def translate_feature_to_human(feature_name):
     # Define mappings for technical terms to human language
     feature_translations = {
         # Structural strength features
-        'column_fck': 'Concrete Column Strength',
-        'beam_fck': 'Concrete Beam Strength', 
-        'slab_fck': 'Concrete Slab Strength',
-        'bearing_capacity': 'Soil Foundation Strength',
+        'column_fck': 'Column Compressive Strength',
+        'beam_fck': 'Beam Compressive Strength', 
+        'slab_fck': 'Slab Compressive Strength',
+        'bearing_capacity': 'Soil Bearing Capacity',
         
         # Steel reinforcement features
         'y8_fyk': 'Yield Strength for 8mm bar',
