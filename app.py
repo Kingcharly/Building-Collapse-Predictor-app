@@ -245,6 +245,8 @@ def format_contribution_explanation(feature_desc, weight, is_risk_factor=True):
     else:
         impact_level = "Weak"
     
+    # Compose the full feature description with condition
+    full_feature = f"{human_name} ({condition})" if "meets certain conditions" not in condition else human_name
     if is_risk_factor:
         if "strength" in human_name.lower():
             explanation = f"**{human_name}** is below optimal levels, significantly increasing collapse risk"
