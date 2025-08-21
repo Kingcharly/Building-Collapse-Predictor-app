@@ -120,7 +120,7 @@ def create_lime_explanation_simple(explainer, pipeline, input_data, num_features
         return None
 def translate_feature_to_human(feature_name):
     """Translate technical feature names to human-readable descriptions"""
-    
+    key = feature_name.lower().replace('cat__', '').replace('remainder__', '')
     # Define mappings for technical terms to human language
     feature_translations = {
         # Structural strength features
@@ -189,12 +189,16 @@ def translate_feature_to_human(feature_name):
 
 # Add this helper function near your other utility functions
 def normalize_feature_name(feature_name):
-    """Turn “Y12 Fyk” → “y12_fyk”, stripping out any parens or symbols."""
+    """Normalize feature names: strip 'cat__'/'remainder__', remove symbols, spaces→underscore, lowercase."""
     s = feature_name.strip()
-    # remove parentheses and any non-alphanumeric/_ chars
+    # 1. strip any cat__ or remainder__ prefix
+    s = re.sub(r'^(?:cat__|remainder__)', '', s, flags=re.IGNORECASE)
+    # 2. remove parentheses and non-alphanumeric characters
     s = re.sub(r'[^\w\s]', '', s)
-    # spaces → underscore, then lowercase
-    return s.replace(' ', '_').lower()
+    # 3. collapse whitespace, convert spaces to underscore, lowercase
+    s = re.sub(r'\s+', ' ', s).replace(' ', '_').lower()
+    return s
+
 def _is_number(s: str) -> bool:
     try:
         float(s)
