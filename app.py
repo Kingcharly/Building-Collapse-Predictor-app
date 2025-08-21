@@ -439,8 +439,10 @@ def main():
                 with st.spinner("Analyzing building factors..."):
                     explanation = create_lime_explanation_simple(explainer, pipeline, input_data)
                     
-                    if lime_result[0] is not None:
-                        explanation, pred, probs = lime_result
+                    if explanation is None:
+                        st.error('Could not generate LIME explanation')
+                        st.info('This may be due to model complexity or data preprocessing issues')
+                    else:
                         # Interactive LIME plot
                         fig_lime = plot_lime_explanation(explanation)
                         if fig_lime is not None:
@@ -603,6 +605,7 @@ def main():
 if __name__ == "__main__":
 
     main()
+
 
 
 
