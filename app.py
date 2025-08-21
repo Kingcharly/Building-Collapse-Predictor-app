@@ -166,17 +166,17 @@ def translate_feature_to_human(feature_name):
         'cat__supervision_Unknown': 'Unknown Construction Supervision',
         
         # Remainder features (numeric features that come after categorical encoding)
-        'remainder__floor': 'Number of Building Floors',
-        'remainder__collapse_risk_score': 'Overall Risk Assessment Score',
-        'remainder__column_fck': 'Concrete Column Strength',
-        'remainder__beam_fck': 'Concrete Beam Strength',
-        'remainder__slab_fck': 'Concrete Slab Strength',
-        'remainder__Y8_fyk': 'Yield Strength for 8mm bar',
-        'remainder__Y10_fyk': 'Yield Strength for 10mm bar',
-        'remainder__Y12_fyk': 'Yield Strength for 12mm bar',
-        'remainder__Y16_fyk': 'Yield Strength for 16mm bar',
-        'remainder__Y20_fyk': 'Yield Strength for 20mm bar',
-        'remainder__bearing_capacity': 'Soil Foundation Strength'
+        'remainder_floor': 'Number of Building Floors',
+        'remainder_collapse_risk_score': 'Overall Risk Assessment Score',
+        'remainder_column_fck': 'Concrete Column Strength',
+        'remainder_beam_fck': 'Concrete Beam Strength',
+        'remainder_slab_fck': 'Concrete Slab Strength',
+        'remainder_y8_fyk': 'Yield Strength for 8mm bar',
+        'remainder_y10_fyk': 'Yield Strength for 10mm bar',
+        'remainder_y12_fyk': 'Yield Strength for 12mm bar',
+        'remainder_y16_fyk': 'Yield Strength for 16mm bar',
+        'remainder_y20_fyk': 'Yield Strength for 20mm bar',
+        'remainder_bearing_capacity': 'Soil Foundation Strength'
     }
 
     human = feature_translations.get(key, key.replace('_', ' ').title())
