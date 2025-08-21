@@ -613,7 +613,7 @@ def main():
     st.markdown(
     """
     <div style="font-size:13px; color:gray; margin-top:30px;">
-    ⚠️ <b>Disclaimer:</b> This prediction tool is for research and educational purposes only. 
+    ⚠️ <b>Disclaimer:</b> prediction tool is for research and educational purposes only. 
     The results are not a substitute for professional engineering judgment or compliance with 
     building codes. Always consult qualified professionals before making construction or safety decisions.
     </div>
