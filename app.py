@@ -189,44 +189,48 @@ def translate_feature_to_human(feature_name):
         cleaned_name = cleaned_name.replace('_', ' ').title()
         return cleaned_name
         
+# Add this helper function near your other utility functions
+def normalize_feature_name(feature_name):
+    """Normalize feature names to match translation keys (e.g., Y10 Fyk -> Y10_fyk)"""
+    return feature_name.strip().replace(" ", "_").replace("(", "").replace(")", "")
 def parse_feature_condition(feature_string):
     """Parse LIME feature condition and convert to human-readable format"""
     
     # Handle different LIME output formats
     if ' <= ' in feature_string:
         parts = feature_string.split(' <= ')
-        feature_name = parts[0].strip()
+        feature_name = normalize_feature_name(parts[0].strip())
         value = parts[1].strip()
         return feature_name, f"is {value} or below"
     
     elif ' > ' in feature_string:
         parts = feature_string.split(' > ')
-        feature_name = parts[0].strip()
+        feature_name = normalize_feature_name(parts[0].strip())
         value = parts[1].strip()
         return feature_name, f"is above {value}"
     
     elif ' < ' in feature_string:
         parts = feature_string.split(' < ')
-        feature_name = parts[0].strip()
+        feature_name = normalize_feature_name(parts[1].strip())
         value = parts[1].strip()
         return feature_name, f"is below {value}"
     
     elif ' >= ' in feature_string:
         parts = feature_string.split(' >= ')
-        feature_name = parts[0].strip()
+        feature_name = normalize_feature_name(parts[0].strip())
         value = parts[1].strip()
         return feature_name, f"is {value} or above"
     
     elif ' = ' in feature_string:
         parts = feature_string.split(' = ')
-        feature_name = parts[0].strip()
+        feature_name = normalize_feature_name(parts[0].strip())
         value = parts[1].strip()
         return feature_name, f"equals {value}"
     
     else:
         # Fallback for other formats
-        return feature_string.strip(), "meets certain conditions"
-        
+        return normalize_feature_name(feature_string.strip()), "meets certain conditions"
+
 def format_contribution_explanation(feature_desc, weight, is_risk_factor=True):
     """Create human-readable explanation for each feature contribution"""
     feature_name, condition = parse_feature_condition(feature_desc)
