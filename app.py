@@ -437,9 +437,13 @@ def main():
                 st.markdown("*Understanding why the AI made this prediction*")
                 
                 with st.spinner("Analyzing building factors..."):
-                    explanation = create_lime_explanation_simple(explainer, pipeline, input_data)
+                    try:
+                        explanation_obj, pred_class, probs = create_lime_explanation_simple(explainer, pipeline, input_data)
+                    except Exception as e:
+                        st.error(f"Error generating LIME explanations")
                     
-                    if explanation is None:
+                    
+                    if explanation_obj is None:
                         st.error('Could not generate LIME explanation')
                         st.info('This may be due to model complexity or data preprocessing issues')
                     else:
@@ -449,7 +453,7 @@ def main():
                             st.plotly_chart(fig_lime, use_container_width=True)
                             
                             # Feature contribution analysis
-                            explanation_list = explanation.as_list()
+                            explanation_list = explanation_obj.as_list()
                             
                             st.subheader("📈 Detailed Safety Analysis")
                             # Filter out Y6_fyk and Y25_fyk from explanations
@@ -602,6 +606,7 @@ def main():
 if __name__ == "__main__":
 
     main()
+
 
 
 
