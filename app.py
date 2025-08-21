@@ -267,8 +267,21 @@ def plot_lime_explanation(explanation):
     features = [item[0] for item in explanation_list]
     weights = [item[1] for item in explanation_list]
 
-    # Translate to hyman-readable names
-    human_features = [translate_feature_to_human(feature) for feature in features]
+    # Filter out removed features
+    filtered_features = []
+    filtered_weights = []
+
+    for f, w in zip (features, weight):
+        if 'Y6_fyk' not in f and 'Y25_fyk' not in f:
+            filtered_features.append(f)
+            filtered_weights.append(w)
+
+    # Translate to human-readable names
+    human_features = []
+    for feature_desc in filtered_features:
+        feature_name, condition = parse_feature_condition(feature_desc)
+        human_name = translate_feature_to_human(feature_name)
+        human_features.append(f'{human_name} ({condition})")
     # Create color mapping
     colors = ['rgba(255, 99, 71, 0.8)' if w < 0 else 'rgba(60, 179, 113, 0.8)' for w in weights]
     
@@ -426,8 +439,8 @@ def main():
                 with st.spinner("Analyzing building factors..."):
                     explanation = create_lime_explanation_simple(explainer, pipeline, input_data)
                     
-                    if explanation_result[0] is not None:
-                        explanation, pred, probs = explanation_result
+                    if lime_result[0] is not None:
+                        explanation, pred, probs = lime_result
                         # Interactive LIME plot
                         fig_lime = plot_lime_explanation(explanation)
                         if fig_lime is not None:
@@ -462,11 +475,11 @@ def main():
                             risk_factors.sort(key=lambda x: abs(x[1]), reverse=True)
                             safety_factors.sort(key=lambda x: abs(x[1]), reverse=True)
                             
-                            # Display safety factors (most important for low-risk predictions)
+                            # Display risk factors (most important for low-risk predictions)
                             if risk_factors:
                                 st.markdown(f"**{risk_title}")
                                 if is_collapse_prediction:
-                                    st.markdown("*These Factors make the building more vulnerable:*")
+                                    st.markdown("*These factors make the building more vulnerable:*")
                                 else:
                                     st.markdown("*Theese factors could be improved for better safety:*")
                                 
@@ -480,7 +493,7 @@ def main():
                             # Display safety factors (most important for low-risk predictions)
                             if safety_factors:
                                 st.markdown(f"**{safety_title}**")
-                                st.markdown("*These factors make the building safer:*")
+                                st.markdown("*These factors contributes to the building's safety:*")
                                 for i, (feature_desc, weight) in enumerate(safety_factors[:5]):
                                     if 'Y6_fyk' in feature_desc or 'Y25_fyk' in feature_desc:
                                         continue
@@ -590,6 +603,7 @@ def main():
 if __name__ == "__main__":
 
     main()
+
 
 
 
