@@ -123,7 +123,7 @@ def translate_feature_to_human(feature_name):
     key = normalize_feature_name(feature_name)
 
     # Dynamic patterns first
-    m = re.match(r'^y(\d+)_fyk$', key)
+    m = re.search(r'y\s*(\d+)\s*_?fyk', key, flags=re.IGNORECASE)
     if m:
         return f"{m.group(1)}mm Steel Bar Strength"
 
