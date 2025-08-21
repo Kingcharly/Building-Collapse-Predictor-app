@@ -190,13 +190,15 @@ def translate_feature_to_human(feature_name):
 
 # Add this helper function near your other utility functions
 def normalize_feature_name(feature_name):
-    """Normalize feature names: strip 'cat__'/'remainder__', remove symbols, spaces→underscore, lowercase."""
+    """Normalize feature names: strip 'cat__'/'remainder__', convert to standard format"""
     s = feature_name.strip()
     # 1. strip any cat__ or remainder__ prefix
     s = re.sub(r'^(?:cat__|remainder__)', '', s, flags=re.IGNORECASE)
-    # 2. remove parentheses and non-alphanumeric characters
-    s = re.sub(r'[^\w\s]', '', s)
-    # 3. collapse whitespace, convert spaces to underscore, lowercase
+    # 2. Handle steel bar naming: "Y12 Fyk" -> "Y12_fyk"
+    s = re.sub(r'(Y\d+)\s+(Fyk)', r'\1_\2', s, flags=re.IGNORECASE)
+    # 3. remove other parentheses and non-alphanumeric characters except underscore
+    s = re.sub(r'[^\w\s_]', '', s)
+    # 4. collapse whitespace, convert remaining spaces to underscore, lowercase
     s = re.sub(r'\s+', ' ', s).replace(' ', '_').lower()
     return s
 
