@@ -130,12 +130,12 @@ def translate_feature_to_human(feature_name):
         'bearing_capacity': 'Soil Foundation Strength',
         
         # Steel reinforcement features
-        'Y8_fyk': '8mm Steel Bar Strength',
-        'Y10_fyk': '10mm Steel Bar Strength',
-        'Y12_fyk': '12mm Steel Bar Strength',
-        'Y16_fyk': '16mm Steel Bar Strength',
-        'Y20_fyk': '20mm Steel Bar Strength',
-        
+        'y8_fyk': '8mm Steel Bar Strength',
+        'y10_fyk': '10mm Steel Bar Strength',
+        'y12_fyk': '12mm Steel Bar Strength',
+        'y16_fyk': '16mm Steel Bar Strength',
+        'y20_fyk': '20mm Steel Bar Strength',
+
         
         # Building characteristics
         'floor': 'Number of Building Floors',
@@ -181,39 +181,20 @@ def translate_feature_to_human(feature_name):
         'remainder__bearing_capacity': 'Soil Foundation Strength'
     }
 
-    # Case- and prefix-insensitive lookup
-    lookup = {k.lower(): v for k, v in feature_translations.items()}
-       # Build candidate variants from the incoming name
-    base = feature_name.strip()
-    bases = {
-        base,
-        base.replace(' ', '_'),
-        base.replace('(', '').replace(')', '').replace(' ', '_')
-    }
-
-    candidates = set()
-    for b in bases:
-        candidates.update({
-            b, b.lower(),
-            f"cat__{b}", f"remainder__{b}",
-            f"cat__{b}".lower(), f"remainder__{b}".lower()
-        })
-
-    # Try exact, then case-insensitive matches
-    for c in candidates:
-        if c in feature_translations:
-            return feature_translations[c]
-        if c.lower() in lookup:
-            return lookup[c.lower()]
-        
-    # Fallback: prettify unknowns
-    cleaned = base.replace('remainder__', '').replace('cat__', '').replace('_', ' ').strip()
-    return cleaned.title()
+    key = feature_name.lower()
+    if key in feature_translations:
+        return feature_translations[key]
+    # fallback
+    return key.replace('_', ' ').title()
 
 # Add this helper function near your other utility functions
 def normalize_feature_name(feature_name):
-    """Normalize feature names to match translation keys (e.g., Y10 Fyk -> Y10_fyk)"""
-    return feature_name.strip().replace(" ", "_").replace("(", "").replace(")", "").replace("'", "")
+    """Turn “Y12 Fyk” → “y12_fyk”, stripping out any parens or symbols."""
+    s = feature_name.strip()
+    # remove parentheses and any non-alphanumeric/_ chars
+    s = re.sub(r'[^\w\s]', '', s)
+    # spaces → underscore, then lowercase
+    return s.replace(' ', '_').lower()
 def _is_number(s: str) -> bool:
     try:
         float(s)
