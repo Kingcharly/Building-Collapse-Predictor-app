@@ -212,7 +212,7 @@ def parse_feature_condition(feature_string):
     elif ' < ' in feature_string:
         parts = feature_string.split(' < ')
         feature_name = normalize_feature_name(parts[1].strip())
-        value = parts[1].strip()
+        value = parts[0].strip()
         return feature_name, f"is below {value}"
     
     elif ' >= ' in feature_string:
