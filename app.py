@@ -448,7 +448,7 @@ def main():
                         st.info('This may be due to model complexity or data preprocessing issues')
                     else:
                         # Interactive LIME plot
-                        fig_lime = plot_lime_explanation(explanation)
+                        fig_lime = plot_lime_explanation(explanation_obj)
                         if fig_lime is not None:
                             st.plotly_chart(fig_lime, use_container_width=True)
                             
@@ -606,6 +606,7 @@ def main():
 if __name__ == "__main__":
 
     main()
+
 
 
 
