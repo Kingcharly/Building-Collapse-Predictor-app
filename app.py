@@ -281,7 +281,7 @@ def plot_lime_explanation(explanation, label=None):
         # final fallback
         explanation_list = explanation.as_list()
     features = [item[0] for item in explanation_list]
-    weights = [item[1] for item in explanation_list]
+    weight = [item[1] for item in explanation_list]
 
     # Filter out removed features
     filtered_features = []
@@ -626,6 +626,7 @@ def main():
 if __name__ == "__main__":
 
     main()
+
 
 
 
